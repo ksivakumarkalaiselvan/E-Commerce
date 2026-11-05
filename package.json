@@ -1,5 +1,6 @@
 {
   "name": "aura-ecommerce-platform",
+  "private": true,
   "version": "1.0.0",
   "description": "Full-Stack Modern E-Commerce Platform with React, Node, Express, SQLite/SQL, Stripe/Razorpay and Admin Dashboard",
   "main": "start.js",
@@ -9,8 +10,8 @@
     "backend"
   ],
   "scripts": {
+    "start": "node backend/server.js",
     "build": "npm run build --workspace=frontend",
-    "start": "node start.js",
     "dev": "node start.js",
     "seed": "npm run seed --prefix backend",
     "backend": "npm run dev --prefix backend",
