@@ -1,10 +1,11 @@
 {
   "name": "aura-ecommerce-platform",
   "version": "1.0.0",
-  "description": "Full-Stack Modern E-Commerce Platform with React, Node, Express, MongoDB, Stripe/Razorpay and Admin Dashboard",
+  "description": "Full-Stack Modern E-Commerce Platform with React, Node, Express, SQLite/SQL, Stripe/Razorpay and Admin Dashboard",
   "main": "start.js",
   "type": "module",
   "scripts": {
+    "build": "npm run build --prefix frontend",
     "start": "node start.js",
     "dev": "node start.js",
     "seed": "npm run seed --prefix backend",
@@ -12,12 +13,25 @@
     "frontend": "npm run dev --prefix frontend",
     "build:frontend": "npm run build --prefix frontend"
   },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.24.6",
+    "pg": "^8.23.1",
+    "sequelize": "^6.37.8",
+    "sqlite3": "^6.0.1"
+  },
   "keywords": [
     "ecommerce",
     "react",
     "express",
     "nodejs",
-    "mongodb",
+    "sql",
+    "sqlite",
     "jwt",
     "stripe",
     "razorpay",

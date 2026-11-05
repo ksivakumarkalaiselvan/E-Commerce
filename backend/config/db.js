@@ -38,11 +38,25 @@ if (dialect === 'mysql') {
   );
 } else {
   // Default: SQLite database file (Requires zero installation & runs anywhere)
-  const dbDir = path.join(__dirname, '../data');
-  if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
+  let storagePath;
+  if (process.env.VERCEL) {
+    const tmpPath = '/tmp/database.sqlite';
+    const sourcePath = path.join(__dirname, '../data/database.sqlite');
+    if (!fs.existsSync(tmpPath) && fs.existsSync(sourcePath)) {
+      try {
+        fs.copyFileSync(sourcePath, tmpPath);
+      } catch (e) {
+        console.error('Notice: Could not copy initial database to /tmp:', e.message);
+      }
+    }
+    storagePath = tmpPath;
+  } else {
+    const dbDir = path.join(__dirname, '../data');
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
+    storagePath = path.join(dbDir, 'database.sqlite');
   }
-  const storagePath = path.join(dbDir, 'database.sqlite');
 
   sequelize = new Sequelize({
     dialect: 'sqlite',
