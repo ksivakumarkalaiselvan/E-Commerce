@@ -17,6 +17,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { initialProducts } from '../../data/initialData';
 
 export const Navbar = () => {
   const { user, isAdmin, logout } = useAuth();
@@ -69,12 +70,18 @@ export const Navbar = () => {
       try {
         const res = await fetch(`/api/products?search=${encodeURIComponent(searchQuery)}&limit=5`);
         const data = await res.json();
-        if (data.success) {
+        if (data && data.success && data.products) {
           setSearchResults(data.products || []);
           setSearchDropdownOpen(true);
+        } else {
+          throw new Error('Fallback search');
         }
       } catch (err) {
-        console.error('Search error:', err);
+        const localMatches = initialProducts
+          .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.category.toLowerCase().includes(searchQuery.toLowerCase()))
+          .slice(0, 5);
+        setSearchResults(localMatches);
+        setSearchDropdownOpen(localMatches.length > 0);
       } finally {
         setSearchLoading(false);
       }

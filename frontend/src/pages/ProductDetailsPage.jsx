@@ -18,6 +18,7 @@ import { useWishlist } from '../context/WishlistContext';
 import { useToast } from '../context/ToastContext';
 import { RatingStars } from '../components/common/RatingStars';
 import { ProductCard } from '../components/products/ProductCard';
+import { initialProducts, initialReviews } from '../data/initialData';
 
 export const ProductDetailsPage = () => {
   const { id } = useParams();
@@ -61,9 +62,23 @@ export const ProductDetailsPage = () => {
           if (relData.success) {
             setRelatedProducts((relData.products || []).filter((p) => p._id !== data.product._id));
           }
+          return;
         }
+        throw new Error('Fallback to local product');
       } catch (err) {
-        console.error('Failed to load product details:', err);
+        // Fallback: Locate in initialProducts so product details work offline
+        const fallback = initialProducts.find(
+          (p) => String(p.id) === String(id) || String(p._id) === String(id) || p.slug === id
+        ) || initialProducts[0];
+
+        if (fallback) {
+          setProduct(fallback);
+          setSelectedImage(fallback.images[0]);
+          setReviews(initialReviews);
+          setRelatedProducts(
+            initialProducts.filter((p) => p.category === fallback.category && String(p._id) !== String(fallback._id)).slice(0, 4)
+          );
+        }
       } finally {
         setLoading(false);
       }

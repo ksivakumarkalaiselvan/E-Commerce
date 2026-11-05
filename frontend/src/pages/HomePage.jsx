@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { ProductCard } from '../components/products/ProductCard';
 import { QuickViewModal } from '../components/products/QuickViewModal';
+import { initialProducts, initialCategories } from '../data/initialData';
 
 export const HomePage = () => {
   const [products, setProducts] = useState([]);
@@ -50,10 +51,20 @@ export const HomePage = () => {
         const prodData = await prodRes.json();
         const catData = await catRes.json();
 
-        if (prodData.success) setProducts(prodData.products || []);
-        if (catData.success) setCategories(catData.categories || []);
+        if (prodData && prodData.success && prodData.products?.length) {
+          setProducts(prodData.products);
+        } else {
+          setProducts(initialProducts.slice(0, 12));
+        }
+        if (catData && catData.success && catData.categories?.length) {
+          setCategories(catData.categories);
+        } else {
+          setCategories(initialCategories);
+        }
       } catch (err) {
-        console.error('Failed to load homepage data:', err);
+        console.warn('Backend API unavailable, using local product catalog:', err.message);
+        setProducts(initialProducts.slice(0, 12));
+        setCategories(initialCategories);
       } finally {
         setLoading(false);
       }

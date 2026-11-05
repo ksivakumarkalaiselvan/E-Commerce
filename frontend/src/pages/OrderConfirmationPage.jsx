@@ -41,11 +41,18 @@ export const OrderConfirmationPage = () => {
           },
         });
         const data = await res.json();
-        if (data.success && data.order) {
+        if (data && data.success && data.order) {
           setOrder(data.order);
+          return;
         }
+        throw new Error('Fallback to local order');
       } catch (err) {
-        console.error('Failed to load order receipt:', err);
+        // Fallback: Check local storage for demo orders
+        try {
+          const stored = JSON.parse(localStorage.getItem('aura_demo_orders') || '[]');
+          const match = stored.find(o => String(o._id) === String(id) || String(o.id) === String(id) || o.orderNumber === id);
+          if (match) setOrder(match);
+        } catch {}
       } finally {
         setLoading(false);
       }

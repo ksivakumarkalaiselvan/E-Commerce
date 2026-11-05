@@ -1,0 +1,847 @@
+export const initialCategories = [
+  {
+    "name": "Electronics",
+    "slug": "electronics",
+    "description": "Next-gen gadgets, augmented reality, laptops, 4K drones and smart hardware",
+    "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+    "icon": "Cpu",
+    "isFeatured": true,
+    "_id": 1,
+    "id": 1
+  },
+  {
+    "name": "Wearables",
+    "slug": "wearables",
+    "description": "Luxury smartwatches, fitness trackers, and biometric bands",
+    "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80",
+    "icon": "Watch",
+    "isFeatured": true,
+    "_id": 2,
+    "id": 2
+  },
+  {
+    "name": "Audio & Sound",
+    "slug": "audio-sound",
+    "description": "Audiophile spatial audio headphones, studio monitors and Hi-Fi speakers",
+    "image": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80",
+    "icon": "Headphones",
+    "isFeatured": true,
+    "_id": 3,
+    "id": 3
+  },
+  {
+    "name": "Fashion & Apparel",
+    "slug": "fashion-apparel",
+    "description": "Designer streetwear, premium minimalist apparel, and cyber-aesthetic jackets",
+    "image": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80",
+    "icon": "Shirt",
+    "isFeatured": true,
+    "_id": 4,
+    "id": 4
+  },
+  {
+    "name": "Home & Living",
+    "slug": "home-living",
+    "description": "Ambient smart lighting, ergonomic workstation gear, and modern home tech",
+    "image": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80",
+    "icon": "Home",
+    "isFeatured": true,
+    "_id": 5,
+    "id": 5
+  },
+  {
+    "name": "Gaming & Setup",
+    "slug": "gaming-setup",
+    "description": "Ultra-fast mechanical keyboards, OLED gaming monitors, and precision mice",
+    "image": "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80",
+    "icon": "Gamepad2",
+    "isFeatured": true,
+    "_id": 6,
+    "id": 6
+  }
+];
+
+export const initialProducts = [
+  {
+    "name": "Aura Vision Pro AR Smart Glasses",
+    "slug": "aura-vision-pro-ar-smart-glasses",
+    "description": "Next-generation augmented reality glasses featuring dual 4K micro-OLED displays with 120Hz refresh rates, spatial sound, and full 6-DoF motion tracking. Seamlessly mirror your laptop displays into a private 120-inch floating workspace or immerse in spatial cinema.",
+    "shortDescription": "Dual 4K micro-OLED spatial AR glasses with 6-DoF tracking.",
+    "price": 699,
+    "originalPrice": 799,
+    "discountPercent": 13,
+    "category": "Electronics",
+    "brand": "Aura Vision",
+    "images": [
+      "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&w=1000&q=80"
+    ],
+    "stock": 15,
+    "rating": 4.9,
+    "numReviews": 38,
+    "isFeatured": true,
+    "isNewArrival": true,
+    "specifications": [
+      {
+        "key": "Display Technology",
+        "value": "Dual 1.3-inch Micro-OLED (3840 x 2160 per eye)"
+      },
+      {
+        "key": "Refresh Rate",
+        "value": "120Hz Ultra-Fluid"
+      },
+      {
+        "key": "Field of View",
+        "value": "52° FOV (Equivalent to 120-inch screen at 4m)"
+      },
+      {
+        "key": "Weight",
+        "value": "142g Ergonomic balanced frame"
+      },
+      {
+        "key": "Connectivity",
+        "value": "USB Type-C DisplayPort Alt Mode & Wi-Fi 6E"
+      }
+    ],
+    "features": [
+      "Ultra-high pixel density of 3,552 PPI for razor-sharp text readability",
+      "Built-in prescription lens magnetic attachment system",
+      "Spatial acoustic speakers directed to ear with zero audio leakage"
+    ],
+    "tags": [
+      "electronics",
+      "ar",
+      "smart-glasses",
+      "vr",
+      "displays"
+    ],
+    "_id": 1,
+    "id": 1
+  },
+  {
+    "name": "QuantumBook Ultra M3 Carbon Laptop",
+    "slug": "quantumbook-ultra-m3-carbon-laptop",
+    "description": "Crafted from aerospace magnesium-carbon fiber alloy weighing just 1.1kg. Houses a 14.5-inch 3.2K 120Hz OLED display, 12-core AI neural processing engine, 32GB high-speed unified RAM, and up to 22 hours of battery endurance on a single charge.",
+    "shortDescription": "14.5\" 3.2K 120Hz OLED ultrabook with 22-hour battery life.",
+    "price": 1499,
+    "originalPrice": 1699,
+    "discountPercent": 12,
+    "category": "Electronics",
+    "brand": "Quantum Systems",
+    "images": [
+      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1000&q=80"
+    ],
+    "stock": 12,
+    "rating": 5,
+    "numReviews": 29,
+    "isFeatured": true,
+    "isNewArrival": true,
+    "specifications": [
+      {
+        "key": "Processor",
+        "value": "12-Core Quantum AI Processor (Up to 4.8 GHz)"
+      },
+      {
+        "key": "RAM & Storage",
+        "value": "32GB LPDDR5X + 1TB PCIe 4.0 NVMe SSD"
+      },
+      {
+        "key": "Display",
+        "value": "14.5\" 3.2K OLED 120Hz (100% DCI-P3, 500 nits)"
+      },
+      {
+        "key": "Battery",
+        "value": "75Wh (Up to 22 Hours Web/Video playback)"
+      },
+      {
+        "key": "Chassis",
+        "value": "Forged Magnesium-Carbon Unibody (1.1kg)"
+      }
+    ],
+    "features": [
+      "Zero-fan vapor chamber cooling for silent full-throttle compute",
+      "Thunderbolt 4, HDMI 2.1, SD Express card reader, and Wi-Fi 7",
+      "1080p FHD IR webcam with hardware privacy shutter"
+    ],
+    "tags": [
+      "laptop",
+      "ultrabook",
+      "electronics",
+      "workstation",
+      "oled"
+    ],
+    "_id": 2,
+    "id": 2
+  },
+  {
+    "name": "Aura Holographic Studio 3D Display",
+    "slug": "aura-holographic-studio-3d-display",
+    "description": "Breakthrough 16-inch glasses-free spatial holographic 3D monitor. Features high-speed eye-tracking stereo cameras and an optical lenticular lens array that projects dynamic light fields directly into your eyes, creating realistic tangible 3D depth.",
+    "shortDescription": "16\" Glasses-Free 4K Spatial Lightfield 3D Display.",
+    "price": 1199,
+    "originalPrice": 1399,
+    "discountPercent": 14,
+    "category": "Electronics",
+    "brand": "Aura Vision",
+    "images": [
+      "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1526738549149-8e07eca6c147?auto=format&fit=crop&w=1000&q=80"
+    ],
+    "stock": 8,
+    "rating": 4.8,
+    "numReviews": 17,
+    "isFeatured": false,
+    "isNewArrival": true,
+    "specifications": [
+      {
+        "key": "Display Size",
+        "value": "15.6 inches Glasses-Free 3D"
+      },
+      {
+        "key": "Panel Resolution",
+        "value": "3840 x 2160 (4K UHD 2D / True 3D Depth)"
+      },
+      {
+        "key": "Tracking Cameras",
+        "value": "Dual High-Speed Eye-Tracking IR Sensors"
+      },
+      {
+        "key": "Software Support",
+        "value": "Unity, Unreal Engine, Blender, Maya, WebXR"
+      }
+    ],
+    "features": [
+      "View 3D models and animations pop out in physical space without any glasses",
+      "Instant switch between high-precision 2D 4K mode and holographic 3D",
+      "Integrated touch bar controls for 3D rotation, zoom, and perspective"
+    ],
+    "tags": [
+      "electronics",
+      "3d",
+      "holographic",
+      "monitor",
+      "display"
+    ],
+    "_id": 3,
+    "id": 3
+  },
+  {
+    "name": "VoltCore 140W GaN Fast Charger & Power Hub",
+    "slug": "voltcore-140w-gan-fast-charger-power-hub",
+    "description": "Compact 140W Gallium Nitride (GaN III) multi-device charging station with real-time digital LCD power monitor. Features 3x USB-C PD 3.1 ports and 1x USB-A port capable of charging a 16-inch MacBook Pro, iPad, and smartphone at full speed simultaneously.",
+    "shortDescription": "140W GaN III 4-Port desktop fast charger with real-time wattage LCD.",
+    "price": 79,
+    "originalPrice": 99,
+    "discountPercent": 20,
+    "category": "Electronics",
+    "brand": "VoltCore",
+    "images": [
+      "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1622445262464-84b14e3295b6?auto=format&fit=crop&w=1000&q=80"
+    ],
+    "stock": 50,
+    "rating": 4.9,
+    "numReviews": 64,
+    "isFeatured": false,
+    "isNewArrival": false,
+    "specifications": [
+      {
+        "key": "Total Output Power",
+        "value": "140W Max (PD 3.1 Supported)"
+      },
+      {
+        "key": "Ports",
+        "value": "3x USB Type-C, 1x USB-A"
+      },
+      {
+        "key": "Technology",
+        "value": "GaN III (Gallium Nitride Semiconductor)"
+      },
+      {
+        "key": "Display",
+        "value": "Real-time Wattage & Protocol Smart LCD Screen"
+      }
+    ],
+    "features": [
+      "Fast charges 16-inch laptop to 50% in just 28 minutes",
+      "ActiveShield 2.0 temperature monitoring takes 3 million temperature checks/day",
+      "Compact foldable desktop footprint 40% smaller than standard bricks"
+    ],
+    "tags": [
+      "electronics",
+      "charger",
+      "gan",
+      "power",
+      "accessories"
+    ],
+    "_id": 4,
+    "id": 4
+  },
+  {
+    "name": "Aura Drone Air 4K Cine Gimbal Drone",
+    "slug": "aura-drone-air-4k-cine-gimbal-drone",
+    "description": "Sub-249g ultra-compact folding aerial drone equipped with a 1/1.3-inch 48MP CMOS sensor, 4K/60fps HDR video recording, 3-axis mechanical stabilization gimbal, omnidirectional obstacle avoidance, and up to 45 minutes of extended flight time.",
+    "shortDescription": "Sub-249g 4K/60fps Cine Drone with 45-min flight time.",
+    "price": 749,
+    "originalPrice": 899,
+    "discountPercent": 17,
+    "category": "Electronics",
+    "brand": "Aura Vision",
+    "images": [
+      "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1507582020474-9a35b7d455d9?auto=format&fit=crop&w=1000&q=80"
+    ],
+    "stock": 14,
+    "rating": 4.9,
+    "numReviews": 42,
+    "isFeatured": true,
+    "isNewArrival": true,
+    "specifications": [
+      {
+        "key": "Takeoff Weight",
+        "value": "246g (No FAA / Regulatory Registration Needed)"
+      },
+      {
+        "key": "Camera Sensor",
+        "value": "1/1.3\" CMOS 48MP (f/1.7 aperture)"
+      },
+      {
+        "key": "Max Flight Time",
+        "value": "45 Minutes"
+      },
+      {
+        "key": "Video Transmission",
+        "value": "15km Full HD 1080p/60fps live feed"
+      },
+      {
+        "key": "Wind Resistance",
+        "value": "Level 5 (Up to 38 km/h)"
+      }
+    ],
+    "features": [
+      "True Vertical Shooting mode for direct high-res social media sharing",
+      "ActiveTrack 5.0 and Spotlight subject lock for autonomous cinematic shots",
+      "Four-way obstacle sensing system with automated return-to-home"
+    ],
+    "tags": [
+      "electronics",
+      "drone",
+      "camera",
+      "4k",
+      "aerial"
+    ],
+    "_id": 5,
+    "id": 5
+  },
+  {
+    "name": "Nexus Smart AI Security Hub & 4K Wireless Cam",
+    "slug": "nexus-smart-ai-security-hub-4k-wireless-cam",
+    "description": "Solar-powered wire-free 4K security camera system with built-in bionic AI that recognizes family members, vehicles, and package deliveries locally on-device with zero subscription fees. Features color night vision, 105dB siren, and 365 days of battery reserve.",
+    "shortDescription": "Wire-free 4K HDR Solar AI Camera with zero subscription.",
+    "price": 229,
+    "originalPrice": 279,
+    "discountPercent": 18,
+    "category": "Electronics",
+    "brand": "Nexus Living",
+    "images": [
+      "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&w=1000&q=80"
+    ],
+    "stock": 26,
+    "rating": 4.7,
+    "numReviews": 31,
+    "isFeatured": false,
+    "isNewArrival": true,
+    "specifications": [
+      {
+        "key": "Video Quality",
+        "value": "4K Ultra HD (3840 x 2160) with HDR"
+      },
+      {
+        "key": "Power System",
+        "value": "Integrated Solar Panel + 13,000mAh Battery"
+      },
+      {
+        "key": "Local Storage",
+        "value": "32GB eMMC (Expandable up to 2TB SSD on Hub)"
+      },
+      {
+        "key": "Night Vision",
+        "value": "Full Color Spotlight Night Vision (Up to 15m)"
+      }
+    ],
+    "features": [
+      "Self-sustaining solar power: 2 hours of direct daily sunlight keeps it charged forever",
+      "On-device AI distinguishes humans, pets, vehicles, and deliveries with 99% accuracy",
+      "Two-way clear audio with acoustic noise cancellation and 105dB security siren"
+    ],
+    "tags": [
+      "electronics",
+      "smart-home",
+      "security",
+      "camera",
+      "ai"
+    ],
+    "_id": 6,
+    "id": 6
+  },
+  {
+    "name": "Aura SoundPro X Spatial Headphones",
+    "slug": "aura-soundpro-x-spatial-headphones",
+    "description": "Experience ultra-rich sound with custom 40mm beryllium drivers, active hybrid noise cancellation up to -45dB, and head-tracking spatial audio. Up to 60 hours of continuous wireless playback on a single charge with fast USB-C charge providing 5 hours in 10 minutes.",
+    "shortDescription": "Hybrid ANC wireless studio-grade headphones with spatial audio tracking.",
+    "price": 299,
+    "originalPrice": 379,
+    "discountPercent": 21,
+    "category": "Audio & Sound",
+    "brand": "Aura Audio",
+    "images": [
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=1000&q=80"
+    ],
+    "stock": 24,
+    "rating": 4.9,
+    "numReviews": 48,
+    "isFeatured": true,
+    "isNewArrival": false,
+    "specifications": [
+      {
+        "key": "Driver Size",
+        "value": "40mm Custom Beryllium"
+      },
+      {
+        "key": "Battery Life",
+        "value": "Up to 60 Hours (ANC Off), 42 Hours (ANC On)"
+      },
+      {
+        "key": "Connectivity",
+        "value": "Bluetooth 5.3, LDAC, aptX Adaptive, 3.5mm Aux"
+      },
+      {
+        "key": "Weight",
+        "value": "254g"
+      },
+      {
+        "key": "Noise Cancellation",
+        "value": "Active Hybrid ANC (-45dB)"
+      }
+    ],
+    "features": [
+      "Advanced 4-microphone beamforming array for crystal-clear voice calls",
+      "Transparency Mode with one-touch capacitive pass-through",
+      "Premium memory foam earcups covered in breathable vegan leather",
+      "Multipoint connection to switch seamlessly between laptop and phone"
+    ],
+    "tags": [
+      "headphones",
+      "anc",
+      "wireless",
+      "audio",
+      "spatial"
+    ],
+    "_id": 7,
+    "id": 7
+  },
+  {
+    "name": "Pulse X Pro True Wireless Earbuds",
+    "slug": "pulse-x-pro-true-wireless-earbuds",
+    "description": "Compact audiophile earbuds featuring planar magnetic drivers with dynamic subwoofers, active wind-resistant noise canceling, IPX7 water resistance, and wireless charging case delivering 36 hours total playback.",
+    "shortDescription": "Planar magnetic hybrid driver wireless earbuds with IPX7 rating.",
+    "price": 179,
+    "originalPrice": 229,
+    "discountPercent": 22,
+    "category": "Audio & Sound",
+    "brand": "Aura Audio",
+    "images": [
+      "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?auto=format&fit=crop&w=1000&q=80"
+    ],
+    "stock": 35,
+    "rating": 4.9,
+    "numReviews": 53,
+    "isFeatured": true,
+    "isNewArrival": true,
+    "specifications": [
+      {
+        "key": "Acoustic Architecture",
+        "value": "10mm Planar Magnetic + 6mm Dynamic"
+      },
+      {
+        "key": "Water Resistance",
+        "value": "IPX7 (Sweatproof and rainproof)"
+      },
+      {
+        "key": "Battery Life",
+        "value": "9 Hours (Earbuds) + 27 Hours (Charging Case)"
+      },
+      {
+        "key": "Audio Codecs",
+        "value": "LHDC 5.0, LDAC, AAC, SBC"
+      }
+    ],
+    "features": [
+      "Smart adaptive ANC automatically tunes strength to surrounding decibels",
+      "Bone conduction sensor for crystal clear calls in noisy environments",
+      "Qi wireless charging and USB-C fast charging support"
+    ],
+    "tags": [
+      "earbuds",
+      "audio",
+      "wireless",
+      "anc",
+      "ipx7"
+    ],
+    "_id": 8,
+    "id": 8
+  },
+  {
+    "name": "Chronos Ultra Titanium Smartwatch",
+    "slug": "chronos-ultra-titanium-smartwatch",
+    "description": "Forged from aerospace-grade Grade 5 titanium with a sapphire crystal touch display reaching 2,500 nits peak brightness. Features advanced ECG heart tracking, continuous SpO2, skin temperature sensors, dual-band GPS, and 100m water resistance.",
+    "shortDescription": "Aerospace titanium dual-band GPS smartwatch with 14-day battery.",
+    "price": 449,
+    "originalPrice": 549,
+    "discountPercent": 18,
+    "category": "Wearables",
+    "brand": "Chronos",
+    "images": [
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=1000&q=80"
+    ],
+    "stock": 18,
+    "rating": 4.8,
+    "numReviews": 32,
+    "isFeatured": true,
+    "isNewArrival": true,
+    "specifications": [
+      {
+        "key": "Case Material",
+        "value": "Grade 5 Aerospace Titanium"
+      },
+      {
+        "key": "Display",
+        "value": "1.43-inch AMOLED (2,500 nits, Sapphire Glass)"
+      },
+      {
+        "key": "Water Resistance",
+        "value": "10 ATM (100 Meters)"
+      },
+      {
+        "key": "Battery Life",
+        "value": "14 Days Typical Use, 48 Hours GPS Mode"
+      },
+      {
+        "key": "Sensors",
+        "value": "Optical Bio-Tracker 5.0, ECG, SpO2, Barometer"
+      }
+    ],
+    "features": [
+      "Offline topological topographic maps with waypoint breadcrumb navigation",
+      "Over 160 specialized sports modes including deep scuba and mountaineering",
+      "Voice assistant, contactless NFC payment, and Bluetooth calling"
+    ],
+    "tags": [
+      "smartwatch",
+      "titanium",
+      "wearable",
+      "fitness",
+      "luxury"
+    ],
+    "_id": 9,
+    "id": 9
+  },
+  {
+    "name": "Nova Pro 4K Curved OLED Gaming Monitor",
+    "slug": "nova-pro-4k-curved-oled-gaming-monitor",
+    "description": "A breathtaking 34-inch ultra-wide 1800R curved QD-OLED display with genuine 0.03ms GtG response time and 240Hz refresh rate. True 10-bit color, DisplayHDR True Black 400, and 99.3% DCI-P3 coverage deliver cinema-level contrast and fluid gaming.",
+    "shortDescription": "34\" Ultrawide QD-OLED 240Hz 0.03ms HDR True Black Gaming Monitor.",
+    "price": 899,
+    "originalPrice": 1099,
+    "discountPercent": 18,
+    "category": "Gaming & Setup",
+    "brand": "NovaTech",
+    "images": [
+      "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1000&q=80"
+    ],
+    "stock": 9,
+    "rating": 4.9,
+    "numReviews": 27,
+    "isFeatured": true,
+    "isNewArrival": false,
+    "specifications": [
+      {
+        "key": "Panel Type",
+        "value": "Quantum Dot OLED (QD-OLED)"
+      },
+      {
+        "key": "Resolution",
+        "value": "3440 x 1440 (UWQHD 21:9)"
+      },
+      {
+        "key": "Refresh Rate",
+        "value": "240Hz"
+      },
+      {
+        "key": "Response Time",
+        "value": "0.03ms (GtG)"
+      },
+      {
+        "key": "Ports",
+        "value": "2x DP 1.4, 2x HDMI 2.1, 90W USB-C with KVM"
+      }
+    ],
+    "features": [
+      "Built-in KVM switch to control two PCs with a single keyboard & mouse",
+      "G-Sync & FreeSync Premium Pro certified for tear-free gameplay",
+      "Custom graphite heatsink prevents OLED burn-in without noisy fans"
+    ],
+    "tags": [
+      "monitor",
+      "oled",
+      "gaming",
+      "4k",
+      "display"
+    ],
+    "_id": 10,
+    "id": 10
+  },
+  {
+    "name": "CyberBlade Wireless Mechanical Keyboard",
+    "slug": "cyberblade-wireless-mechanical-keyboard",
+    "description": "CNC aluminum unibody 75% hot-swappable mechanical keyboard with gasket mount design, pre-lubed linear switches, sound-dampening IXPE foam, and south-facing per-key RGB backlighting with transparent polycarbonate keycaps.",
+    "shortDescription": "75% Gasket Mount Wireless Aluminum Mechanical Keyboard.",
+    "price": 159,
+    "originalPrice": 199,
+    "discountPercent": 20,
+    "category": "Gaming & Setup",
+    "brand": "CyberBlade",
+    "images": [
+      "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?auto=format&fit=crop&w=1000&q=80"
+    ],
+    "stock": 45,
+    "rating": 4.7,
+    "numReviews": 39,
+    "isFeatured": false,
+    "isNewArrival": true,
+    "specifications": [
+      {
+        "key": "Layout",
+        "value": "75% Compact (81 Keys + Rotary Encoder)"
+      },
+      {
+        "key": "Switches",
+        "value": "Factory Lubed Linear Hall-Effect Switches"
+      },
+      {
+        "key": "Mounting",
+        "value": "Double Gasket Mount with Poron Dampeners"
+      },
+      {
+        "key": "Connectivity",
+        "value": "Tri-Mode: 2.4Ghz Wireless, BT 5.1, USB-C"
+      },
+      {
+        "key": "Battery",
+        "value": "4000mAh (Up to 200 Hours RGB off)"
+      }
+    ],
+    "features": [
+      "Solid CNC-milled 6063 aluminum alloy chassis with anodized finish",
+      "Programmable tactile multifunction rotary media knob",
+      "QMK/VIA open-source custom key remapping and macros support"
+    ],
+    "tags": [
+      "keyboard",
+      "mechanical",
+      "wireless",
+      "rgb",
+      "gaming"
+    ],
+    "_id": 11,
+    "id": 11
+  },
+  {
+    "name": "Vortex Precision Wireless Studio Mouse",
+    "slug": "vortex-precision-wireless-studio-mouse",
+    "description": "Ergonomic sculptured wireless mouse equipped with 30,000 DPI Focus Pro optical sensor, mag-speed dual-mode electromagnetic scrolling wheel, thumb gesture button, and silent optical micro-switches rated for 90 million clicks.",
+    "shortDescription": "30,000 DPI silent ergonomic mouse with electromagnetic scroll.",
+    "price": 99,
+    "originalPrice": 129,
+    "discountPercent": 23,
+    "category": "Gaming & Setup",
+    "brand": "Vortex Dynamics",
+    "images": [
+      "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?auto=format&fit=crop&w=1000&q=80"
+    ],
+    "stock": 52,
+    "rating": 4.7,
+    "numReviews": 41,
+    "isFeatured": false,
+    "isNewArrival": false,
+    "specifications": [
+      {
+        "key": "Sensor",
+        "value": "Focus Pro 30K Optical Sensor"
+      },
+      {
+        "key": "Battery Life",
+        "value": "Up to 90 Days on a 2-hour charge"
+      },
+      {
+        "key": "Weight",
+        "value": "108g Balanced"
+      },
+      {
+        "key": "Connectivity",
+        "value": "2.4Ghz USB Dongle + 3 Bluetooth channels"
+      }
+    ],
+    "features": [
+      "MagSpeed scroll wheel scrolls 1,000 lines in 1 second with hyper-fast mode",
+      "Quick-switch button between 3 paired devices seamlessly",
+      "USB-C rapid charging: 1 minute of charging gives 3 hours of full use"
+    ],
+    "tags": [
+      "mouse",
+      "ergonomic",
+      "wireless",
+      "accessories",
+      "setup"
+    ],
+    "_id": 12,
+    "id": 12
+  },
+  {
+    "name": "Aura Flow Cyberpunk Bomber Jacket",
+    "slug": "aura-flow-cyberpunk-bomber-jacket",
+    "description": "Weatherproof technical nylon outerwear with waterproof YKK AquaGuard zippers, magnetic Fidlock buckle straps, breathable heat-insulating lining, and hidden internal utility pockets. Engineered for all-season metropolitan wear.",
+    "shortDescription": "Waterproof technical streetwear bomber with magnetic utility pockets.",
+    "price": 189,
+    "originalPrice": 249,
+    "discountPercent": 24,
+    "category": "Fashion & Apparel",
+    "brand": "Aura Wear",
+    "images": [
+      "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1000&q=80"
+    ],
+    "stock": 30,
+    "rating": 4.8,
+    "numReviews": 19,
+    "isFeatured": true,
+    "isNewArrival": true,
+    "specifications": [
+      {
+        "key": "Material",
+        "value": "Cordura Ripstop 3-Layer Technical Nylon"
+      },
+      {
+        "key": "Waterproof Rating",
+        "value": "20,000mm Hydrostatic Head"
+      },
+      {
+        "key": "Hardware",
+        "value": "German Fidlock V-Buckles & YKK Matte Zips"
+      },
+      {
+        "key": "Fit",
+        "value": "Modern Relaxed Technical Silhouette"
+      }
+    ],
+    "features": [
+      "Detachable sling strap allows carrying jacket over shoulder hands-free",
+      "Reflective 3M geometric micro-decals for high visibility night safety",
+      "Fleece-lined warming side hand pockets with zippered enclosures"
+    ],
+    "tags": [
+      "jacket",
+      "streetwear",
+      "fashion",
+      "techwear",
+      "cyberpunk"
+    ],
+    "_id": 13,
+    "id": 13
+  },
+  {
+    "name": "Lumina Horizon Ambient Smart Lightbar",
+    "slug": "lumina-horizon-ambient-smart-lightbar",
+    "description": "Dynamic gradient LED desk and wall ambient lighting fixture with 16 million colors, screen-sync immersion mode, circadian rhythm wake-up sequence, and integration with Apple HomeKit, Google Home, and Alexa.",
+    "shortDescription": "Screen-syncing gradient smart lightbar with music visualizer.",
+    "price": 119,
+    "originalPrice": 149,
+    "discountPercent": 20,
+    "category": "Home & Living",
+    "brand": "Lumina",
+    "images": [
+      "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=1000&q=80"
+    ],
+    "stock": 40,
+    "rating": 4.6,
+    "numReviews": 24,
+    "isFeatured": false,
+    "isNewArrival": false,
+    "specifications": [
+      {
+        "key": "Luminous Flux",
+        "value": "1,200 Lumens (Adjustable 1-100%)"
+      },
+      {
+        "key": "Color Temp",
+        "value": "2200K (Warm Sunset) - 6500K (Cool Daylight)"
+      },
+      {
+        "key": "Smart Connectivity",
+        "value": "Matter, Thread, Wi-Fi 6, Bluetooth"
+      },
+      {
+        "key": "Power",
+        "value": "24W via USB Type-C PD"
+      }
+    ],
+    "features": [
+      "Sub-millisecond HDMI 2.1 video sync for game and movie backlighting",
+      "Integrated acoustic sensor for rhythmic musical visualizer beats",
+      "Magnetic rotatable base allows 360-degree beam orientation"
+    ],
+    "tags": [
+      "lighting",
+      "smart-home",
+      "rgb",
+      "ambiance",
+      "setup"
+    ],
+    "_id": 14,
+    "id": 14
+  }
+];
+
+export const initialReviews = [
+  {
+    "userName": "Alexander Wright",
+    "rating": 5,
+    "comment": "The Aura Vision Pro smart glasses are incredible. I use them daily on flights to project a private 3-monitor workspace!",
+    "verifiedPurchase": true,
+    "createdAt": "2026-11-03T10:10:05.345Z"
+  },
+  {
+    "userName": "Sophia Martinez",
+    "rating": 5,
+    "comment": "The QuantumBook Ultra M3 battery genuinely lasts 20+ hours and the OLED screen is gorgeous for design work.",
+    "verifiedPurchase": true,
+    "createdAt": "2026-11-01T10:10:05.347Z"
+  },
+  {
+    "userName": "David Chen",
+    "rating": 5,
+    "comment": "The soundstage on the Aura SoundPro X is simply phenomenal. The ANC silences commutes and battery life lasts two weeks.",
+    "verifiedPurchase": true,
+    "createdAt": "2026-10-30T10:10:05.347Z"
+  }
+];

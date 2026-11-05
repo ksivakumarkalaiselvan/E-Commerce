@@ -14,6 +14,7 @@ import {
 import { ProductCard } from '../components/products/ProductCard';
 import { QuickViewModal } from '../components/products/QuickViewModal';
 import { RatingStars } from '../components/common/RatingStars';
+import { initialProducts, initialCategories } from '../data/initialData';
 
 export const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -50,10 +51,20 @@ export const ProductsPage = () => {
         const catData = await catRes.json();
         const brandData = await brandRes.json();
 
-        if (catData.success) setCategories(catData.categories || []);
-        if (brandData.success) setBrands(brandData.brands || []);
+        if (catData && catData.success && catData.categories?.length) {
+          setCategories(catData.categories);
+        } else {
+          setCategories(initialCategories);
+        }
+        if (brandData && brandData.success && brandData.brands?.length) {
+          setBrands(brandData.brands);
+        } else {
+          setBrands([...new Set(initialProducts.map(p => p.brand))]);
+        }
       } catch (err) {
-        console.error('Failed to load categories/brands:', err);
+        console.warn('Backend API unavailable, using local metadata:', err.message);
+        setCategories(initialCategories);
+        setBrands([...new Set(initialProducts.map(p => p.brand))]);
       }
     };
     fetchMetadata();
@@ -85,13 +96,46 @@ export const ProductsPage = () => {
 
         const res = await fetch(`/api/products?${query.toString()}`);
         const data = await res.json();
-        if (data.success) {
+        if (data && data.success && data.products) {
           setProducts(data.products || []);
           setTotalPages(data.pages || 1);
           setTotalProducts(data.total || 0);
+        } else {
+          throw new Error('API returned unsuccessful response');
         }
       } catch (err) {
-        console.error('Failed to fetch filtered products:', err);
+        // Fallback: Filter in-memory products so frontend always works standalone
+        let filtered = [...initialProducts];
+        if (search) {
+          const s = search.toLowerCase();
+          filtered = filtered.filter(p => p.name.toLowerCase().includes(s) || p.description.toLowerCase().includes(s));
+        }
+        if (category && category !== 'All') {
+          filtered = filtered.filter(p => p.category.toLowerCase() === category.toLowerCase());
+        }
+        if (brand && brand !== 'All') {
+          filtered = filtered.filter(p => p.brand.toLowerCase() === brand.toLowerCase());
+        }
+        if (minPrice > 0) {
+          filtered = filtered.filter(p => p.price >= minPrice);
+        }
+        if (maxPrice < 1500) {
+          filtered = filtered.filter(p => p.price <= maxPrice);
+        }
+        if (rating > 0) {
+          filtered = filtered.filter(p => (p.rating || 5) >= rating);
+        }
+        if (sort === 'price-asc') filtered.sort((a, b) => a.price - b.price);
+        if (sort === 'price-desc') filtered.sort((a, b) => b.price - a.price);
+        if (sort === 'rating') filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+
+        const limit = 12;
+        const total = filtered.length;
+        const pages = Math.ceil(total / limit) || 1;
+        const paged = filtered.slice((page - 1) * limit, page * limit);
+        setProducts(paged);
+        setTotalPages(pages);
+        setTotalProducts(total);
       } finally {
         setLoading(false);
       }
