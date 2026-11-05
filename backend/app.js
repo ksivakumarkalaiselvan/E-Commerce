@@ -29,8 +29,20 @@ if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   app.use(morgan('dev'));
 }
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
+// Root & Health check endpoints
+app.get('/', (req, res) => {
+  res.json({
+    status: 'healthy',
+    message: 'AURA E-Commerce REST API is running!',
+    endpoints: {
+      health: '/api/health',
+      products: '/api/products',
+      categories: '/api/categories',
+    },
+  });
+});
+
+app.get(['/health', '/api/health'], (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),

@@ -9,10 +9,21 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dialect = process.env.DB_DIALECT || 'sqlite';
+const dialect = process.env.DB_DIALECT || (process.env.DATABASE_URL ? 'postgres' : 'sqlite');
 let sequelize;
 
-if (dialect === 'mysql') {
+if (process.env.DATABASE_URL) {
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: process.env.DATABASE_URL.includes('localhost') ? false : {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    },
+    logging: false,
+  });
+} else if (dialect === 'mysql') {
   sequelize = new Sequelize(
     process.env.DB_NAME || 'aura_ecom',
     process.env.DB_USER || 'root',

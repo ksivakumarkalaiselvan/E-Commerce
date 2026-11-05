@@ -13,7 +13,7 @@ const startServer = async () => {
     await connectDB();
     await seedDatabase();
 
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`\n======================================================`);
       console.log(`🚀 AURA E-Commerce Server running on http://localhost:${PORT}`);
       console.log(`📦 REST API Base: http://localhost:${PORT}/api`);
