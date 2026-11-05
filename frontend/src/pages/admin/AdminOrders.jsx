@@ -196,7 +196,7 @@ export const AdminOrders = () => {
                       {order.user?.name || order.shippingAddress?.name || 'Guest User'}
                     </td>
                     <td className="py-3 px-3 font-bold text-white">
-                      ${order.totalPrice?.toFixed(2)}
+                      ₹{order.totalPrice?.toFixed(2)}
                     </td>
                     <td className="py-3 px-3">
                       <span className="text-[11px] text-slate-300 bg-slate-950 px-2 py-0.5 rounded-md border border-white/5">
@@ -315,11 +315,11 @@ export const AdminOrders = () => {
                       <img src={item.image} alt="" className="w-9 h-9 rounded-lg object-cover bg-slate-900" />
                       <div>
                         <p className="font-semibold text-white">{item.name}</p>
-                        <p className="text-[10px] text-slate-400">${item.price} × {item.quantity}</p>
+                        <p className="text-[10px] text-slate-400">₹{item.price} × {item.quantity}</p>
                       </div>
                     </div>
                     <span className="font-bold text-white">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ₹{(item.price * item.quantity).toFixed(2)}
                     </span>
                   </div>
                 ))}
@@ -330,15 +330,15 @@ export const AdminOrders = () => {
             <div className="space-y-1.5 text-xs text-slate-300 pt-2 border-t border-white/10">
               <div className="flex justify-between">
                 <span>Items Subtotal:</span>
-                <span className="font-semibold text-white">${inspectOrder.itemsPrice?.toFixed(2)}</span>
+                <span className="font-semibold text-white">₹{inspectOrder.itemsPrice?.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping & Delivery:</span>
-                <span className="font-semibold text-white">${inspectOrder.shippingPrice?.toFixed(2)}</span>
+                <span className="font-semibold text-white">₹{inspectOrder.shippingPrice?.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-white font-bold pt-1 border-t border-white/5 text-sm">
                 <span>Total Amount:</span>
-                <span className="text-cyan-400">${inspectOrder.totalPrice?.toFixed(2)}</span>
+                <span className="text-cyan-400">₹{inspectOrder.totalPrice?.toFixed(2)}</span>
               </div>
             </div>
           </div>

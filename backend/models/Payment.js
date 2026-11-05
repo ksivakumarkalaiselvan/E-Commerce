@@ -29,7 +29,7 @@ const Payment = sequelize.define('Payment', {
   },
   currency: {
     type: DataTypes.STRING,
-    defaultValue: 'USD',
+    defaultValue: 'INR',
   },
   status: {
     type: DataTypes.STRING,

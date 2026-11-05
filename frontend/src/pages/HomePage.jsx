@@ -184,8 +184,8 @@ export const HomePage = () => {
                       <div>
                         <span className="text-xs text-slate-400 block">Special Launch Price</span>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-xl font-bold text-white">$299</span>
-                          <span className="text-xs text-slate-500 line-through">$379</span>
+                          <span className="text-xl font-bold text-white">₹299</span>
+                          <span className="text-xs text-slate-500 line-through">₹379</span>
                         </div>
                       </div>
                       <Link

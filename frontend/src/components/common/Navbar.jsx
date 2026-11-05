@@ -203,7 +203,7 @@ export const Navbar = () => {
                         <p className="text-xs text-slate-400">{item.brand} • {item.category}</p>
                       </div>
                       <div className="text-right shrink-0">
-                        <span className="text-sm font-bold text-white">${item.price}</span>
+                        <span className="text-sm font-bold text-white">₹{item.price}</span>
                       </div>
                     </Link>
                   ))}

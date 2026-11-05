@@ -235,11 +235,11 @@ export const ProductDetailsPage = () => {
           {/* Price Bar */}
           <div className="p-4 rounded-2xl bg-slate-900/40 border border-white/5 flex items-baseline gap-4">
             <span className="text-3xl font-extrabold text-white">
-              ${product.price}
+              ₹{product.price}
             </span>
             {product.originalPrice > product.price && (
               <span className="text-base text-slate-500 line-through">
-                ${product.originalPrice}
+                ₹{product.originalPrice}
               </span>
             )}
             <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 ml-auto">
@@ -343,7 +343,7 @@ export const ProductDetailsPage = () => {
             <div className="p-3 rounded-xl bg-slate-900/40 border border-white/5">
               <Truck className="w-5 h-5 text-indigo-400 mx-auto mb-1" />
               <span className="text-[11px] font-semibold text-white block">Free Shipping</span>
-              <span className="text-[10px] text-slate-400">On orders $150+</span>
+              <span className="text-[10px] text-slate-400">On orders ₹150+</span>
             </div>
             <div className="p-3 rounded-xl bg-slate-900/40 border border-white/5">
               <ShieldCheck className="w-5 h-5 text-cyan-400 mx-auto mb-1" />

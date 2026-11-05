@@ -276,7 +276,7 @@ export const OrdersPage = () => {
                   <div className="flex items-center gap-3">
                     {getStatusBadge(order.orderStatus)}
                     <span className="text-base font-bold text-white">
-                      ${order.totalPrice?.toFixed(2)}
+                      ₹{order.totalPrice?.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -295,7 +295,7 @@ export const OrdersPage = () => {
                       />
                       <div className="min-w-0">
                         <p className="text-xs font-semibold text-white truncate">{item.name}</p>
-                        <p className="text-[11px] text-slate-400">Qty: {item.quantity} • ${item.price}</p>
+                        <p className="text-[11px] text-slate-400">Qty: {item.quantity} • ₹{item.price}</p>
                       </div>
                     </div>
                   ))}

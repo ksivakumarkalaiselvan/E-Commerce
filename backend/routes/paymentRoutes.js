@@ -15,7 +15,7 @@ router.use(protect);
 // @access  Private
 router.post('/create-intent', async (req, res, next) => {
   try {
-    const { amount, currency = 'USD', gateway = 'Stripe', orderId } = req.body;
+    const { amount, currency = 'INR', gateway = 'Stripe', orderId } = req.body;
 
     if (!amount) {
       return res.status(400).json({ success: false, message: 'Amount is required' });
@@ -42,7 +42,7 @@ router.post('/create-intent', async (req, res, next) => {
 // @access  Private
 router.post('/verify', async (req, res, next) => {
   try {
-    const { orderId, transactionId, gateway, amount, currency = 'USD', status = 'Completed' } = req.body;
+    const { orderId, transactionId, gateway, amount, currency = 'INR', status = 'Completed' } = req.body;
 
     if (!orderId || !transactionId) {
       return res.status(400).json({ success: false, message: 'OrderId and transactionId are required.' });

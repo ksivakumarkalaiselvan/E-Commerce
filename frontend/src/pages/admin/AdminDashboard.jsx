@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  DollarSign,
+  IndianRupee,
   ShoppingBag,
   Package,
   Users,
@@ -55,8 +55,8 @@ export const AdminDashboard = () => {
   const statCards = [
     {
       label: 'Total Revenue',
-      value: `$${stats?.totalRevenue?.toLocaleString() || '0'}`,
-      icon: <DollarSign className="w-5 h-5 text-emerald-400" />,
+      value: `₹${stats?.totalRevenue?.toLocaleString() || '0'}`,
+      icon: <IndianRupee className="w-5 h-5 text-emerald-400" />,
       change: '+18.4% from last month',
       bgGlow: 'shadow-[0_0_20px_rgba(16,185,129,0.15)]',
     },
@@ -154,7 +154,7 @@ export const AdminDashboard = () => {
             return (
               <div key={idx} className="flex flex-col items-center gap-2 h-full justify-end group">
                 <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                  ${item.revenue}
+                  ₹{item.revenue}
                 </span>
                 <div
                   className="w-full max-w-[48px] rounded-t-xl bg-gradient-to-t from-indigo-600 to-cyan-400 group-hover:from-indigo-500 group-hover:to-cyan-300 transition-all shadow-lg"
@@ -213,7 +213,7 @@ export const AdminDashboard = () => {
                       {new Date(order.createdAt).toLocaleDateString()}
                     </td>
                     <td className="py-3 px-3 font-bold text-white">
-                      ${order.totalPrice?.toFixed(2)}
+                      ₹{order.totalPrice?.toFixed(2)}
                     </td>
                     <td className="py-3 px-3">
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${

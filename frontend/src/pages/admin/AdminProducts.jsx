@@ -271,7 +271,7 @@ export const AdminProducts = () => {
                       </div>
                     </td>
                     <td className="py-3 px-3 text-slate-300">{p.category}</td>
-                    <td className="py-3 px-3 font-bold text-white">${p.price}</td>
+                    <td className="py-3 px-3 font-bold text-white">₹{p.price}</td>
                     <td className="py-3 px-3">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                         p.stock > 10
@@ -380,7 +380,7 @@ export const AdminProducts = () => {
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="text-[11px] font-semibold text-slate-300 block mb-1">
-                    Price ($) *
+                    Price (₹) *
                   </label>
                   <input
                     type="number"
@@ -393,7 +393,7 @@ export const AdminProducts = () => {
                 </div>
                 <div>
                   <label className="text-[11px] font-semibold text-slate-300 block mb-1">
-                    Original ($)
+                    Original (₹)
                   </label>
                   <input
                     type="number"

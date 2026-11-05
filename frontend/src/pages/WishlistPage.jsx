@@ -77,7 +77,7 @@ export const WishlistPage = () => {
                 </Link>
 
                 <div className="flex items-center justify-between pt-1">
-                  <span className="text-base font-bold text-white">${product.price}</span>
+                  <span className="text-base font-bold text-white">₹{product.price}</span>
                   <RatingStars rating={product.rating || 5} size="w-3.5 h-3.5" />
                 </div>
 

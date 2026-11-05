@@ -101,12 +101,12 @@ export const QuickViewModal = ({ product, isOpen, onClose }) => {
               {/* Pricing */}
               <div className="flex items-baseline gap-3 mb-4">
                 <span className="text-2xl font-extrabold text-white">
-                  ${product.price}
+                  ₹{product.price}
                 </span>
                 {product.originalPrice > product.price && (
                   <>
                     <span className="text-sm text-slate-500 line-through">
-                      ${product.originalPrice}
+                      ₹{product.originalPrice}
                     </span>
                     <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
                       Save {product.discountPercent}%

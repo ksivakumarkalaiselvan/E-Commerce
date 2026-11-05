@@ -309,7 +309,7 @@ export const ProductsPage = () => {
             <div>
               <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-2">
                 <span>Max Price</span>
-                <span className="text-indigo-400 font-bold">${maxPrice}</span>
+                <span className="text-indigo-400 font-bold">₹{maxPrice}</span>
               </div>
               <input
                 type="range"
@@ -324,9 +324,9 @@ export const ProductsPage = () => {
                 className="w-full accent-indigo-500 bg-slate-950 h-2 rounded-lg cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-slate-500 mt-1">
-                <span>$50</span>
-                <span>$750</span>
-                <span>$1500+</span>
+                <span>₹50</span>
+                <span>₹750</span>
+                <span>₹1500+</span>
               </div>
             </div>
 
@@ -400,7 +400,7 @@ export const ProductsPage = () => {
               <div>
                 <div className="flex justify-between text-xs font-semibold text-white mb-2">
                   <span>Max Price</span>
-                  <span className="text-indigo-400">${maxPrice}</span>
+                  <span className="text-indigo-400">₹{maxPrice}</span>
                 </div>
                 <input
                   type="range"
@@ -459,7 +459,7 @@ export const ProductsPage = () => {
               )}
               {maxPrice < 1500 && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                  Under ${maxPrice}
+                  Under ₹{maxPrice}
                   <button onClick={() => setMaxPrice(1500)}>
                     <X className="w-3 h-3 hover:text-white" />
                   </button>

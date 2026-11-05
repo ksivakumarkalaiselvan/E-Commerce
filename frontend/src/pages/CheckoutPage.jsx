@@ -113,7 +113,7 @@ export const CheckoutPage = () => {
           },
           body: JSON.stringify({
             amount: total,
-            currency: 'USD',
+            currency: 'INR',
             gateway: paymentMethod,
           }),
         });
@@ -177,7 +177,7 @@ export const CheckoutPage = () => {
             transactionId: paymentResult.id,
             gateway: paymentMethod,
             amount: total,
-            currency: 'USD',
+            currency: 'INR',
           }),
         });
       }
@@ -526,7 +526,7 @@ export const CheckoutPage = () => {
                     </div>
                   </div>
                   <span className="font-bold text-white shrink-0">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    ₹{(item.price * item.quantity).toFixed(2)}
                   </span>
                 </div>
               ))}
@@ -536,28 +536,28 @@ export const CheckoutPage = () => {
             <div className="space-y-2.5 text-xs text-slate-300 pt-4 border-t border-white/10">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="font-semibold text-white">${subtotal.toFixed(2)}</span>
+                <span className="font-semibold text-white">₹{subtotal.toFixed(2)}</span>
               </div>
               {discountAmount > 0 && (
                 <div className="flex justify-between text-emerald-400">
                   <span>Discount</span>
-                  <span>-${discountAmount.toFixed(2)}</span>
+                  <span>-₹{discountAmount.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span>Shipping</span>
                 <span className="font-semibold text-white">
-                  {shipping === 0 ? <span className="text-emerald-400">FREE</span> : `$${shipping.toFixed(2)}`}
+                  {shipping === 0 ? <span className="text-emerald-400">FREE</span> : `₹${shipping.toFixed(2)}`}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Estimated Tax</span>
-                <span className="font-semibold text-white">${tax.toFixed(2)}</span>
+                <span className="font-semibold text-white">₹{tax.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-baseline pt-4 border-t border-white/10 text-base font-extrabold text-white">
                 <span>Payable Total</span>
                 <span className="text-2xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-cyan-300">
-                  ${total.toFixed(2)}
+                  ₹{total.toFixed(2)}
                 </span>
               </div>
             </div>
@@ -575,7 +575,7 @@ export const CheckoutPage = () => {
                 </>
               ) : (
                 <>
-                  <Lock className="w-4 h-4" /> Place Order & Pay ${total.toFixed(2)}
+                  <Lock className="w-4 h-4" /> Place Order & Pay ₹{total.toFixed(2)}
                 </>
               )}
             </button>

@@ -146,11 +146,11 @@ export const ProductCard = ({ product, onQuickView }) => {
           <div>
             <div className="flex items-baseline gap-2">
               <span className="text-lg font-bold text-white tracking-tight">
-                ${product.price}
+                ₹{product.price}
               </span>
               {product.originalPrice > product.price && (
                 <span className="text-xs text-slate-500 line-through">
-                  ${product.originalPrice}
+                  ₹{product.originalPrice}
                 </span>
               )}
             </div>
