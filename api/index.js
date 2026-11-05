@@ -15,6 +15,7 @@ const initialize = async () => {
         isReady = true;
       } catch (err) {
         console.error('Initialization error in Vercel serverless function:', err);
+        isReady = true;
       }
     })();
   }
