@@ -4,8 +4,12 @@
   "description": "Full-Stack Modern E-Commerce Platform with React, Node, Express, SQLite/SQL, Stripe/Razorpay and Admin Dashboard",
   "main": "start.js",
   "type": "module",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "build": "npm run build --workspace=frontend",
     "start": "node start.js",
     "dev": "node start.js",
     "seed": "npm run seed --prefix backend",
