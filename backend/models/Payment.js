@@ -1,48 +1,62 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
 
-const paymentSchema = new mongoose.Schema({
-  order: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Order',
-    required: true,
+const Payment = sequelize.define('Payment', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
   },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
+  orderId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
   },
   method: {
-    type: String,
-    enum: ['Stripe', 'Razorpay', 'Cash on Delivery'],
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   transactionId: {
-    type: String,
-    default: '',
+    type: DataTypes.STRING,
+    defaultValue: '',
   },
   amount: {
-    type: Number,
-    required: true,
+    type: DataTypes.FLOAT,
+    allowNull: false,
   },
   currency: {
-    type: String,
-    default: 'USD',
+    type: DataTypes.STRING,
+    defaultValue: 'USD',
   },
   status: {
-    type: String,
-    enum: ['Pending', 'Completed', 'Failed', 'Refunded'],
-    default: 'Pending',
+    type: DataTypes.STRING,
+    defaultValue: 'Completed',
   },
   receiptUrl: {
-    type: String,
-    default: '',
+    type: DataTypes.STRING,
+    defaultValue: '',
   },
   details: {
-    type: Object,
-    default: {},
+    type: DataTypes.TEXT,
+    defaultValue: '{}',
+    get() {
+      const raw = this.getDataValue('details');
+      try {
+        return raw ? JSON.parse(raw) : {};
+      } catch {
+        return {};
+      }
+    },
+    set(val) {
+      this.setDataValue('details', typeof val === 'string' ? val : JSON.stringify(val || {}));
+    },
   },
 }, {
   timestamps: true,
+  tableName: 'payments',
 });
 
-export default mongoose.models.Payment || mongoose.model('Payment', paymentSchema);
+export default Payment;

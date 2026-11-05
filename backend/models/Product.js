@@ -1,93 +1,139 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
 
-const productSchema = new mongoose.Schema({
+const Product = sequelize.define('Product', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
   name: {
-    type: String,
-    required: [true, 'Please enter product name'],
-    trim: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   slug: {
-    type: String,
-    lowercase: true,
-    trim: true,
+    type: DataTypes.STRING,
   },
   description: {
-    type: String,
-    required: [true, 'Please enter product description'],
+    type: DataTypes.TEXT,
+    allowNull: false,
   },
   shortDescription: {
-    type: String,
-    default: '',
+    type: DataTypes.TEXT,
+    defaultValue: '',
   },
   price: {
-    type: Number,
-    required: [true, 'Please enter product price'],
-    min: 0,
+    type: DataTypes.FLOAT,
+    allowNull: false,
   },
   originalPrice: {
-    type: Number,
-    default: 0,
+    type: DataTypes.FLOAT,
+    defaultValue: 0,
   },
   discountPercent: {
-    type: Number,
-    default: 0,
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
   },
   category: {
-    type: String,
-    required: [true, 'Please select category for this product'],
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   brand: {
-    type: String,
-    required: [true, 'Please enter product brand'],
-    trim: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   images: {
-    type: [String],
-    required: [true, 'Please provide at least one product image'],
-    validate: [val => val.length > 0, 'At least one image is required'],
+    type: DataTypes.TEXT,
+    defaultValue: '[]',
+    get() {
+      const raw = this.getDataValue('images');
+      try {
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    },
+    set(val) {
+      this.setDataValue('images', typeof val === 'string' ? val : JSON.stringify(val || []));
+    },
   },
   stock: {
-    type: Number,
-    required: [true, 'Please enter product stock count'],
-    min: 0,
-    default: 0,
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
   },
   rating: {
-    type: Number,
-    default: 0,
-    min: 0,
-    max: 5,
+    type: DataTypes.FLOAT,
+    defaultValue: 5.0,
   },
   numReviews: {
-    type: Number,
-    default: 0,
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
   },
   isFeatured: {
-    type: Boolean,
-    default: false,
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
   isNewArrival: {
-    type: Boolean,
-    default: false,
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
-  specifications: [{
-    key: { type: String, required: true },
-    value: { type: String, required: true }
-  }],
-  features: [String],
-  tags: [String],
+  specifications: {
+    type: DataTypes.TEXT,
+    defaultValue: '[]',
+    get() {
+      const raw = this.getDataValue('specifications');
+      try {
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    },
+    set(val) {
+      this.setDataValue('specifications', typeof val === 'string' ? val : JSON.stringify(val || []));
+    },
+  },
+  features: {
+    type: DataTypes.TEXT,
+    defaultValue: '[]',
+    get() {
+      const raw = this.getDataValue('features');
+      try {
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    },
+    set(val) {
+      this.setDataValue('features', typeof val === 'string' ? val : JSON.stringify(val || []));
+    },
+  },
+  tags: {
+    type: DataTypes.TEXT,
+    defaultValue: '[]',
+    get() {
+      const raw = this.getDataValue('tags');
+      try {
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    },
+    set(val) {
+      this.setDataValue('tags', typeof val === 'string' ? val : JSON.stringify(val || []));
+    },
+  },
 }, {
   timestamps: true,
+  tableName: 'products',
 });
 
-productSchema.pre('save', function (next) {
-  if (this.isModified('name')) {
-    this.slug = this.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+Product.beforeSave((product) => {
+  if (product.name && !product.slug) {
+    product.slug = product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
   }
-  if (this.originalPrice > this.price) {
-    this.discountPercent = Math.round(((this.originalPrice - this.price) / this.originalPrice) * 100);
+  if (product.originalPrice && product.price && product.originalPrice > product.price) {
+    product.discountPercent = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
   }
-  next();
 });
 
-export default mongoose.models.Product || mongoose.model('Product', productSchema);
+export default Product;

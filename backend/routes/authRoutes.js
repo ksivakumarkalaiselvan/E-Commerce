@@ -48,7 +48,8 @@ router.post('/register', async (req, res, next) => {
       success: true,
       token,
       user: {
-        _id: user._id,
+        id: user.id,
+        _id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -98,7 +99,8 @@ router.post('/login', async (req, res, next) => {
       success: true,
       token,
       user: {
-        _id: user._id,
+        id: user.id,
+        _id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -117,10 +119,15 @@ router.post('/login', async (req, res, next) => {
 // @access  Private
 router.get('/me', protect, async (req, res, next) => {
   try {
-    const user = await findUserById(req.user._id);
+    const uid = req.user.id || req.user._id;
+    const user = await findUserById(uid);
     res.json({
       success: true,
-      user,
+      user: {
+        id: user.id,
+        _id: user.id,
+        ...user,
+      },
     });
   } catch (err) {
     next(err);
@@ -132,8 +139,9 @@ router.get('/me', protect, async (req, res, next) => {
 // @access  Private
 router.put('/profile', protect, async (req, res, next) => {
   try {
+    const uid = req.user.id || req.user._id;
     const { name, phone, avatar } = req.body;
-    const updated = await updateUser(req.user._id, {
+    const updated = await updateUser(uid, {
       ...(name && { name }),
       ...(phone !== undefined && { phone }),
       ...(avatar !== undefined && { avatar }),
@@ -142,7 +150,11 @@ router.put('/profile', protect, async (req, res, next) => {
     res.json({
       success: true,
       message: 'Profile updated successfully',
-      user: updated,
+      user: {
+        id: updated.id,
+        _id: updated.id,
+        ...updated,
+      },
     });
   } catch (err) {
     next(err);
@@ -154,12 +166,13 @@ router.put('/profile', protect, async (req, res, next) => {
 // @access  Private
 router.post('/addresses', protect, async (req, res, next) => {
   try {
+    const uid = req.user.id || req.user._id;
     const { street, city, state, postalCode, country = 'India', isDefault = false } = req.body;
     if (!street || !city || !state || !postalCode) {
       return res.status(400).json({ success: false, message: 'Please provide all required address fields.' });
     }
 
-    const user = await findUserById(req.user._id);
+    const user = await findUserById(uid);
     let addresses = user.addresses ? [...user.addresses] : [];
 
     if (isDefault || addresses.length === 0) {
@@ -177,7 +190,7 @@ router.post('/addresses', protect, async (req, res, next) => {
     };
     addresses.push(newAddr);
 
-    const updated = await updateUser(req.user._id, { addresses });
+    const updated = await updateUser(uid, { addresses });
     res.status(201).json({
       success: true,
       message: 'Address added successfully',
@@ -193,9 +206,10 @@ router.post('/addresses', protect, async (req, res, next) => {
 // @access  Private
 router.delete('/addresses/:id', protect, async (req, res, next) => {
   try {
-    const user = await findUserById(req.user._id);
+    const uid = req.user.id || req.user._id;
+    const user = await findUserById(uid);
     const addresses = (user.addresses || []).filter((a) => a._id !== req.params.id);
-    const updated = await updateUser(req.user._id, { addresses });
+    const updated = await updateUser(uid, { addresses });
     res.json({
       success: true,
       message: 'Address removed successfully',
@@ -211,6 +225,7 @@ router.delete('/addresses/:id', protect, async (req, res, next) => {
 // @access  Private
 router.put('/change-password', protect, async (req, res, next) => {
   try {
+    const uid = req.user.id || req.user._id;
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) {
       return res.status(400).json({ success: false, message: 'Current and new password required.' });
@@ -226,7 +241,7 @@ router.put('/change-password', protect, async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await updateUser(req.user._id, { password: hashedPassword });
+    await updateUser(uid, { password: hashedPassword });
 
     res.json({
       success: true,

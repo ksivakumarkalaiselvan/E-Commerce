@@ -88,6 +88,7 @@ const runTests = async () => {
 
   // 6. Add product to cart
   const sampleProduct = products.body.products[0];
+  const prodId = sampleProduct.id || sampleProduct._id;
   const addToCartRes = await req(
     {
       hostname: '127.0.0.1',
@@ -99,7 +100,7 @@ const runTests = async () => {
         Authorization: `Bearer ${customerToken}`,
       },
     },
-    { productId: sampleProduct._id, quantity: 2 }
+    { productId: prodId, quantity: 2 }
   );
   console.log('✔ 6. Added product to cart. Items in cart:', addToCartRes.body.cart?.items?.length);
 
@@ -118,7 +119,7 @@ const runTests = async () => {
     {
       orderItems: [
         {
-          product: sampleProduct._id,
+          product: prodId,
           name: sampleProduct.name,
           image: sampleProduct.images[0],
           price: sampleProduct.price,
@@ -144,8 +145,9 @@ const runTests = async () => {
       paymentResult: { id: 'pi_test_12345', status: 'COMPLETED' },
     }
   );
-  console.log('✔ 7. Order placed successfully. Order Number:', orderRes.body.order?.orderNumber);
-  const createdOrderId = orderRes.body.order?._id;
+  const createdOrder = orderRes.body.order;
+  const createdOrderId = createdOrder?.id || createdOrder?._id;
+  console.log('✔ 7. Order placed successfully. Order Number:', createdOrder?.orderNumber);
 
   // 8. Admin view dashboard stats
   const adminStats = await req({
@@ -178,7 +180,7 @@ const runTests = async () => {
     {
       hostname: '127.0.0.1',
       port: 5000,
-      path: `/api/products/${sampleProduct._id}/reviews`,
+      path: `/api/products/${prodId}/reviews`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

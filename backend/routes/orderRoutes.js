@@ -38,8 +38,11 @@ router.post('/', async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Incomplete shipping address' });
     }
 
+    const userId = req.user.id || req.user._id;
+
     const order = await createOrder({
-      user: req.user._id,
+      userId,
+      user: userId,
       orderItems,
       shippingAddress,
       paymentMethod: paymentMethod || 'Cash on Delivery',
@@ -53,7 +56,7 @@ router.post('/', async (req, res, next) => {
     });
 
     // Automatically clear user's cart after order placement
-    await clearCart(req.user._id);
+    await clearCart(userId);
 
     res.status(201).json({
       success: true,
@@ -70,7 +73,8 @@ router.post('/', async (req, res, next) => {
 // @access  Private
 router.get('/my-orders', async (req, res, next) => {
   try {
-    const orders = await getOrdersByUser(req.user._id);
+    const userId = req.user.id || req.user._id;
+    const orders = await getOrdersByUser(userId);
     res.json({
       success: true,
       orders,
@@ -90,9 +94,9 @@ router.get('/:id', async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
-    // Ensure only the buyer or an admin can view the order
-    const buyerId = String(order.user._id || order.user);
-    if (buyerId !== String(req.user._id) && req.user.role !== 'admin') {
+    const currentUserId = String(req.user.id || req.user._id);
+    const buyerId = String(order.userId || order.user?.id || order.user?._id || order.user);
+    if (buyerId !== currentUserId && req.user.role !== 'admin') {
       return res.status(403).json({ success: false, message: 'Not authorized to view this order' });
     }
 
@@ -111,7 +115,8 @@ router.get('/:id', async (req, res, next) => {
 router.put('/:id/cancel', async (req, res, next) => {
   try {
     const { reason } = req.body;
-    const order = await cancelOrder(req.params.id, req.user._id, reason);
+    const userId = req.user.id || req.user._id;
+    const order = await cancelOrder(req.params.id, userId, reason);
     res.json({
       success: true,
       message: 'Order cancelled successfully',

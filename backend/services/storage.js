@@ -1,277 +1,160 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { Op } from 'sequelize';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { isConnectedToMongo } from '../config/db.js';
-import User from '../models/User.js';
-import Product from '../models/Product.js';
-import Category from '../models/Category.js';
-import Cart from '../models/Cart.js';
-import Order from '../models/Order.js';
-import Review from '../models/Review.js';
-import Payment from '../models/Payment.js';
+import {
+  sequelize,
+  User,
+  Category,
+  Product,
+  Cart,
+  CartItem,
+  Order,
+  OrderItem,
+  Review,
+  Payment,
+} from '../models/index.js';
 import { initialCategories, initialProducts, initialReviews } from '../data/initialProducts.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const DB_FILE = path.join(__dirname, '../data/db_store.json');
-
-// Helper to generate IDs
-const generateId = () => 'id_' + Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
-
-// Initialize / load in-memory JSON DB store
-const loadFileStore = () => {
-  try {
-    if (!fs.existsSync(path.dirname(DB_FILE))) {
-      fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
-    }
-    if (fs.existsSync(DB_FILE)) {
-      const data = fs.readFileSync(DB_FILE, 'utf-8');
-      return JSON.parse(data);
-    }
-  } catch (err) {
-    console.error('Error loading db_store.json:', err.message);
+// Format helper to standardize output objects and provide both id and _id
+const toJSON = (doc) => {
+  if (!doc) return null;
+  const json = typeof doc.toJSON === 'function' ? doc.toJSON() : { ...doc };
+  if (json.id !== undefined && json._id === undefined) {
+    json._id = json.id;
   }
-
-  // Default initial store
-  const defaultStore = {
-    users: [],
-    categories: [],
-    products: [],
-    carts: {},
-    orders: [],
-    payments: [],
-    reviews: [],
-  };
-  saveFileStore(defaultStore);
-  return defaultStore;
+  return json;
 };
-
-const saveFileStore = (store) => {
-  try {
-    if (!fs.existsSync(path.dirname(DB_FILE))) {
-      fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
-    }
-    fs.writeFileSync(DB_FILE, JSON.stringify(store, null, 2), 'utf-8');
-  } catch (err) {
-    console.error('Error saving db_store.json:', err.message);
-  }
-};
-
-let store = loadFileStore();
 
 export const seedDatabase = async () => {
-  const adminPasswordHash = await bcrypt.hash('admin123', 10);
-  const customerPasswordHash = await bcrypt.hash('customer123', 10);
+  try {
+    // Synchronize SQL schema and create tables if they do not exist
+    await sequelize.sync();
+    console.log('\x1b[32m✔ SQL Tables Synchronized (Users, Categories, Products, Carts, Orders, Reviews, Payments).\x1b[0m');
 
-  if (isConnectedToMongo) {
-    try {
-      const userCount = await User.countDocuments();
-      if (userCount === 0) {
-        const admin = await User.create({
-          name: 'Store Admin',
-          email: 'admin@store.com',
-          password: 'admin123',
-          role: 'admin',
-          phone: '+1 555-0199',
-          addresses: [{
+    const userCount = await User.count();
+    if (userCount === 0) {
+      console.log('Seeding initial records into SQL database...');
+
+      const adminPassword = await bcrypt.hash('admin123', 10);
+      const customerPassword = await bcrypt.hash('customer123', 10);
+
+      const admin = await User.create({
+        name: 'Store Admin',
+        email: 'admin@store.com',
+        password: adminPassword,
+        role: 'admin',
+        phone: '+1 555-0199',
+        addresses: [
+          {
+            _id: 'addr_1',
             street: '100 Silicon Blvd, Suite 400',
             city: 'San Francisco',
             state: 'CA',
             postalCode: '94107',
             country: 'USA',
             isDefault: true,
-          }],
-        });
+          },
+        ],
+      });
 
-        const customer = await User.create({
-          name: 'John Doe',
-          email: 'customer@store.com',
-          password: 'customer123',
-          role: 'user',
-          phone: '+1 555-0142',
-          addresses: [{
+      const customer = await User.create({
+        name: 'John Doe',
+        email: 'customer@store.com',
+        password: customerPassword,
+        role: 'user',
+        phone: '+1 555-0142',
+        addresses: [
+          {
+            _id: 'addr_2',
             street: '742 Evergreen Terrace',
             city: 'Springfield',
             state: 'OR',
             postalCode: '97477',
             country: 'USA',
             isDefault: true,
-          }],
-        });
+          },
+        ],
+      });
 
-        await Category.deleteMany();
-        const createdCategories = await Category.insertMany(initialCategories);
-
-        await Product.deleteMany();
-        const createdProducts = await Product.insertMany(initialProducts);
-
-        // Add initial reviews
-        if (createdProducts.length > 0) {
-          for (let i = 0; i < Math.min(initialReviews.length, createdProducts.length); i++) {
-            await Review.create({
-              user: customer._id,
-              userName: initialReviews[i].userName,
-              product: createdProducts[i]._id,
-              rating: initialReviews[i].rating,
-              comment: initialReviews[i].comment,
-              verifiedPurchase: true,
-            });
-          }
-        }
-        console.log('\x1b[32m✔ MongoDB seeded with initial products, categories, reviews & test users.\x1b[0m');
+      // Categories
+      for (const cat of initialCategories) {
+        await Category.create(cat);
       }
-      return;
-    } catch (err) {
-      console.error('Error seeding MongoDB:', err.message);
+
+      // Products
+      const createdProducts = [];
+      for (const prod of initialProducts) {
+        const p = await Product.create(prod);
+        createdProducts.push(p);
+      }
+
+      // Reviews
+      if (createdProducts.length > 0) {
+        for (let i = 0; i < Math.min(initialReviews.length, createdProducts.length); i++) {
+          await Review.create({
+            userId: customer.id,
+            userName: initialReviews[i].userName,
+            productId: createdProducts[i].id,
+            rating: initialReviews[i].rating,
+            comment: initialReviews[i].comment,
+            verifiedPurchase: true,
+          });
+        }
+      }
+
+      console.log('\x1b[32m✔ SQL Database seeded with initial products, categories, reviews, and test accounts.\x1b[0m');
     }
+  } catch (err) {
+    console.error('Error synchronizing/seeding SQL database:', err.message);
   }
-
-  // Fallback file store seed if empty
-  if (!store.users || store.users.length === 0) {
-    const adminUser = {
-      _id: 'usr_admin_' + Date.now(),
-      name: 'Store Admin',
-      email: 'admin@store.com',
-      password: adminPasswordHash,
-      role: 'admin',
-      phone: '+1 555-0199',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-      addresses: [{
-        _id: 'addr_1',
-        street: '100 Silicon Blvd, Suite 400',
-        city: 'San Francisco',
-        state: 'CA',
-        postalCode: '94107',
-        country: 'USA',
-        isDefault: true,
-      }],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    const customerUser = {
-      _id: 'usr_customer_' + Date.now(),
-      name: 'John Doe',
-      email: 'customer@store.com',
-      password: customerPasswordHash,
-      role: 'user',
-      phone: '+1 555-0142',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-      addresses: [{
-        _id: 'addr_2',
-        street: '742 Evergreen Terrace',
-        city: 'Springfield',
-        state: 'OR',
-        postalCode: '97477',
-        country: 'USA',
-        isDefault: true,
-      }],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    store.users = [adminUser, customerUser];
-  }
-
-  if (!store.categories || store.categories.length === 0) {
-    store.categories = initialCategories.map((c, idx) => ({
-      ...c,
-      _id: 'cat_' + (idx + 1),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }));
-  }
-
-  if (!store.products || store.products.length === 0) {
-    store.products = initialProducts.map((p, idx) => ({
-      ...p,
-      _id: 'prod_' + (idx + 1),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }));
-
-    // Seed sample reviews
-    store.reviews = initialReviews.map((r, idx) => ({
-      ...r,
-      _id: 'rev_' + (idx + 1),
-      user: store.users[1]._id,
-      product: store.products[idx % store.products.length]._id,
-      createdAt: r.createdAt.toISOString(),
-      updatedAt: r.createdAt.toISOString(),
-    }));
-  }
-
-  saveFileStore(store);
-  console.log('\x1b[32m✔ File storage verified with sample products, categories, reviews & test accounts.\x1b[0m');
 };
 
 // ================= USER SERVICES =================
 export const findUserByEmail = async (email) => {
-  const cleanEmail = email.toLowerCase().trim();
-  if (isConnectedToMongo) {
-    return await User.findOne({ email: cleanEmail }).select('+password');
-  }
-  return store.users.find((u) => u.email.toLowerCase() === cleanEmail);
+  const user = await User.findOne({
+    where: { email: email.toLowerCase().trim() },
+  });
+  return user ? user.toJSON() : null;
 };
 
 export const findUserById = async (id) => {
-  if (isConnectedToMongo) {
-    return await User.findById(id).select('-password');
-  }
-  const u = store.users.find((u) => u._id === id);
-  if (!u) return null;
-  const { password, ...safeUser } = u;
-  return safeUser;
+  const user = await User.findByPk(id, {
+    attributes: { exclude: ['password'] },
+  });
+  return user ? user.toJSON() : null;
 };
 
 export const createUser = async ({ name, email, password, role = 'user', phone = '' }) => {
-  const cleanEmail = email.toLowerCase().trim();
-  if (isConnectedToMongo) {
-    const user = await User.create({ name, email: cleanEmail, password, role, phone });
-    return user;
-  }
   const hashedPassword = await bcrypt.hash(password, 10);
-  const newUser = {
-    _id: generateId(),
+  const user = await User.create({
     name,
-    email: cleanEmail,
+    email: email.toLowerCase().trim(),
     password: hashedPassword,
     role,
     phone,
-    avatar: '',
     addresses: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  store.users.push(newUser);
-  saveFileStore(store);
-  const { password: _, ...safeUser } = newUser;
-  return safeUser;
+  });
+
+  const raw = user.toJSON();
+  delete raw.password;
+  return raw;
 };
 
 export const updateUser = async (id, updateData) => {
-  if (isConnectedToMongo) {
-    return await User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).select('-password');
-  }
-  const idx = store.users.findIndex((u) => u._id === id);
-  if (idx === -1) return null;
-  store.users[idx] = {
-    ...store.users[idx],
-    ...updateData,
-    updatedAt: new Date().toISOString(),
-  };
-  saveFileStore(store);
-  const { password, ...safeUser } = store.users[idx];
-  return safeUser;
+  const user = await User.findByPk(id);
+  if (!user) return null;
+  await user.update(updateData);
+  const raw = user.toJSON();
+  delete raw.password;
+  return raw;
 };
 
 export const getAllUsers = async () => {
-  if (isConnectedToMongo) {
-    return await User.find().select('-password').sort({ createdAt: -1 });
-  }
-  return store.users.map(({ password, ...rest }) => rest);
+  const users = await User.findAll({
+    attributes: { exclude: ['password'] },
+    order: [['createdAt', 'DESC']],
+  });
+  return users.map(toJSON);
 };
 
 export const comparePassword = async (enteredPassword, hashedPassword) => {
@@ -280,7 +163,7 @@ export const comparePassword = async (enteredPassword, hashedPassword) => {
 
 export const generateToken = (user) => {
   return jwt.sign(
-    { id: user._id, role: user.role, email: user.email },
+    { id: user.id || user._id, role: user.role, email: user.email },
     process.env.JWT_SECRET || 'aura_super_secure_jwt_secret_key_2026_!@#$',
     { expiresIn: process.env.JWT_EXPIRE || '30d' }
   );
@@ -302,402 +185,225 @@ export const getProducts = async ({
   page = Number(page) || 1;
   limit = Number(limit) || 12;
 
-  if (isConnectedToMongo) {
-    const query = {};
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { brand: { $regex: search, $options: 'i' } },
-      ];
-    }
-    if (category && category !== 'All') {
-      query.category = { $regex: new RegExp(`^${category}$`, 'i') };
-    }
-    if (brand && brand !== 'All') {
-      query.brand = { $regex: new RegExp(`^${brand}$`, 'i') };
-    }
-    if (minPrice || maxPrice) {
-      query.price = { $gte: Number(minPrice) || 0, $lte: Number(maxPrice) || 100000 };
-    }
-    if (rating > 0) {
-      query.rating = { $gte: Number(rating) };
-    }
-    if (typeof isFeatured === 'boolean') {
-      query.isFeatured = isFeatured;
-    }
-
-    let sortOption = { createdAt: -1 };
-    if (sort === 'price-asc') sortOption = { price: 1 };
-    if (sort === 'price-desc') sortOption = { price: -1 };
-    if (sort === 'rating') sortOption = { rating: -1, numReviews: -1 };
-    if (sort === 'popular') sortOption = { numReviews: -1 };
-
-    const total = await Product.countDocuments(query);
-    const products = await Product.find(query)
-      .sort(sortOption)
-      .skip((page - 1) * limit)
-      .limit(limit);
-
-    return {
-      products,
-      page,
-      pages: Math.ceil(total / limit) || 1,
-      total,
-    };
-  }
-
-  // File Store
-  let filtered = [...store.products];
+  const where = {};
 
   if (search) {
-    const q = search.toLowerCase();
-    filtered = filtered.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.brand.toLowerCase().includes(q) ||
-        (p.tags && p.tags.some((t) => t.toLowerCase().includes(q)))
-    );
+    where[Op.or] = [
+      { name: { [Op.like]: `%${search}%` } },
+      { description: { [Op.like]: `%${search}%` } },
+      { brand: { [Op.like]: `%${search}%` } },
+    ];
   }
 
   if (category && category !== 'All') {
-    filtered = filtered.filter((p) => p.category.toLowerCase() === category.toLowerCase());
+    where.category = category;
   }
 
   if (brand && brand !== 'All') {
-    filtered = filtered.filter((p) => p.brand.toLowerCase() === brand.toLowerCase());
+    where.brand = brand;
   }
 
-  if (minPrice || maxPrice) {
-    filtered = filtered.filter(
-      (p) => p.price >= (Number(minPrice) || 0) && p.price <= (Number(maxPrice) || 100000)
-    );
-  }
+  where.price = {
+    [Op.gte]: Number(minPrice) || 0,
+    [Op.lte]: Number(maxPrice) || 100000,
+  };
 
   if (rating > 0) {
-    filtered = filtered.filter((p) => p.rating >= Number(rating));
+    where.rating = { [Op.gte]: Number(rating) };
   }
 
   if (typeof isFeatured === 'boolean') {
-    filtered = filtered.filter((p) => p.isFeatured === isFeatured);
+    where.isFeatured = isFeatured;
   }
 
-  if (sort === 'price-asc') {
-    filtered.sort((a, b) => a.price - b.price);
-  } else if (sort === 'price-desc') {
-    filtered.sort((a, b) => b.price - a.price);
-  } else if (sort === 'rating') {
-    filtered.sort((a, b) => b.rating - a.rating);
-  } else if (sort === 'popular') {
-    filtered.sort((a, b) => b.numReviews - a.numReviews);
-  } else {
-    filtered.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-  }
+  let order = [['createdAt', 'DESC']];
+  if (sort === 'price-asc') order = [['price', 'ASC']];
+  if (sort === 'price-desc') order = [['price', 'DESC']];
+  if (sort === 'rating') order = [['rating', 'DESC'], ['numReviews', 'DESC']];
+  if (sort === 'popular') order = [['numReviews', 'DESC']];
 
-  const total = filtered.length;
-  const startIndex = (page - 1) * limit;
-  const paginated = filtered.slice(startIndex, startIndex + limit);
+  const { count, rows } = await Product.findAndCountAll({
+    where,
+    order,
+    limit,
+    offset: (page - 1) * limit,
+  });
 
   return {
-    products: paginated,
+    products: rows.map(toJSON),
     page,
-    pages: Math.ceil(total / limit) || 1,
-    total,
+    pages: Math.ceil(count / limit) || 1,
+    total: count,
   };
 };
 
 export const getProductById = async (id) => {
-  if (isConnectedToMongo) {
-    return await Product.findById(id);
-  }
-  return store.products.find((p) => p._id === id || p.slug === id) || null;
+  const where = isNaN(Number(id)) ? { slug: id } : { id: Number(id) };
+  const product = await Product.findOne({ where });
+  return toJSON(product);
 };
 
 export const createProduct = async (productData) => {
-  const discountPercent =
-    productData.originalPrice > productData.price
-      ? Math.round(((productData.originalPrice - productData.price) / productData.originalPrice) * 100)
-      : 0;
-  const slug = productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-
-  if (isConnectedToMongo) {
-    return await Product.create({
-      ...productData,
-      discountPercent,
-      slug,
-    });
-  }
-
-  const newProduct = {
-    _id: generateId(),
-    ...productData,
-    slug,
-    discountPercent,
-    rating: productData.rating || 0,
-    numReviews: productData.numReviews || 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  store.products.unshift(newProduct);
-  saveFileStore(store);
-  return newProduct;
+  const product = await Product.create(productData);
+  return toJSON(product);
 };
 
 export const updateProduct = async (id, updateData) => {
-  if (updateData.originalPrice && updateData.price && updateData.originalPrice > updateData.price) {
-    updateData.discountPercent = Math.round(
-      ((updateData.originalPrice - updateData.price) / updateData.originalPrice) * 100
-    );
-  }
-  if (updateData.name) {
-    updateData.slug = updateData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-  }
-
-  if (isConnectedToMongo) {
-    return await Product.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
-  }
-
-  const idx = store.products.findIndex((p) => p._id === id);
-  if (idx === -1) return null;
-  store.products[idx] = {
-    ...store.products[idx],
-    ...updateData,
-    updatedAt: new Date().toISOString(),
-  };
-  saveFileStore(store);
-  return store.products[idx];
+  const product = await Product.findByPk(id);
+  if (!product) return null;
+  await product.update(updateData);
+  return toJSON(product);
 };
 
 export const deleteProduct = async (id) => {
-  if (isConnectedToMongo) {
-    return await Product.findByIdAndDelete(id);
-  }
-  const idx = store.products.findIndex((p) => p._id === id);
-  if (idx === -1) return null;
-  const [removed] = store.products.splice(idx, 1);
-  saveFileStore(store);
-  return removed;
+  const product = await Product.findByPk(id);
+  if (!product) return null;
+  await product.destroy();
+  return toJSON(product);
 };
 
 export const getBrands = async () => {
-  if (isConnectedToMongo) {
-    return await Product.distinct('brand');
-  }
-  const brands = new Set(store.products.map((p) => p.brand).filter(Boolean));
-  return Array.from(brands);
+  const products = await Product.findAll({
+    attributes: ['brand'],
+    group: ['brand'],
+  });
+  return products.map((p) => p.brand).filter(Boolean);
 };
 
 // ================= CATEGORY SERVICES =================
 export const getAllCategories = async () => {
-  if (isConnectedToMongo) {
-    return await Category.find().sort({ name: 1 });
-  }
-  return store.categories;
+  const categories = await Category.findAll({ order: [['name', 'ASC']] });
+  return categories.map(toJSON);
 };
 
 export const getCategoryById = async (id) => {
-  if (isConnectedToMongo) {
-    return await Category.findById(id);
-  }
-  return store.categories.find((c) => c._id === id || c.slug === id) || null;
+  const where = isNaN(Number(id)) ? { slug: id } : { id: Number(id) };
+  const cat = await Category.findOne({ where });
+  return toJSON(cat);
 };
 
 export const createCategory = async (data) => {
-  const slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-  if (isConnectedToMongo) {
-    return await Category.create({ ...data, slug });
-  }
-  const newCat = {
-    _id: generateId(),
-    ...data,
-    slug,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  store.categories.push(newCat);
-  saveFileStore(store);
-  return newCat;
+  const cat = await Category.create(data);
+  return toJSON(cat);
 };
 
 export const updateCategory = async (id, data) => {
-  if (data.name) {
-    data.slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-  }
-  if (isConnectedToMongo) {
-    return await Category.findByIdAndUpdate(id, data, { new: true });
-  }
-  const idx = store.categories.findIndex((c) => c._id === id);
-  if (idx === -1) return null;
-  store.categories[idx] = { ...store.categories[idx], ...data, updatedAt: new Date().toISOString() };
-  saveFileStore(store);
-  return store.categories[idx];
+  const cat = await Category.findByPk(id);
+  if (!cat) return null;
+  await cat.update(data);
+  return toJSON(cat);
 };
 
 export const deleteCategory = async (id) => {
-  if (isConnectedToMongo) {
-    return await Category.findByIdAndDelete(id);
-  }
-  const idx = store.categories.findIndex((c) => c._id === id);
-  if (idx === -1) return null;
-  const [removed] = store.categories.splice(idx, 1);
-  saveFileStore(store);
-  return removed;
+  const cat = await Category.findByPk(id);
+  if (!cat) return null;
+  await cat.destroy();
+  return toJSON(cat);
 };
 
 // ================= REVIEW SERVICES =================
 export const getProductReviews = async (productId) => {
-  if (isConnectedToMongo) {
-    return await Review.find({ product: productId }).sort({ createdAt: -1 });
-  }
-  return store.reviews.filter((r) => String(r.product) === String(productId));
+  const reviews = await Review.findAll({
+    where: { productId: Number(productId) },
+    order: [['createdAt', 'DESC']],
+  });
+  return reviews.map(toJSON);
 };
 
 export const addReview = async ({ userId, userName, userAvatar, productId, rating, comment }) => {
-  if (isConnectedToMongo) {
-    const review = await Review.create({
-      user: userId,
-      userName,
-      userAvatar,
-      product: productId,
-      rating: Number(rating),
-      comment,
-      verifiedPurchase: true,
-    });
-
-    // Update product rating and reviews count
-    const reviews = await Review.find({ product: productId });
-    const avgRating = reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
-    await Product.findByIdAndUpdate(productId, {
-      rating: Number(avgRating.toFixed(1)),
-      numReviews: reviews.length,
-    });
-
-    return review;
-  }
-
-  const newReview = {
-    _id: generateId(),
-    user: userId,
+  const review = await Review.create({
+    userId,
     userName,
     userAvatar: userAvatar || '',
-    product: productId,
+    productId: Number(productId),
     rating: Number(rating),
     comment,
     verifiedPurchase: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  store.reviews.unshift(newReview);
+  });
 
   // Recalculate product rating
-  const prodReviews = store.reviews.filter((r) => String(r.product) === String(productId));
-  const avg = prodReviews.reduce((sum, r) => sum + r.rating, 0) / prodReviews.length;
-  const pIdx = store.products.findIndex((p) => p._id === productId);
-  if (pIdx !== -1) {
-    store.products[pIdx].rating = Number(avg.toFixed(1));
-    store.products[pIdx].numReviews = prodReviews.length;
+  const reviews = await Review.findAll({ where: { productId: Number(productId) } });
+  const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+
+  const product = await Product.findByPk(productId);
+  if (product) {
+    await product.update({
+      rating: Number(avg.toFixed(1)),
+      numReviews: reviews.length,
+    });
   }
 
-  saveFileStore(store);
-  return newReview;
+  return toJSON(review);
 };
 
 // ================= CART SERVICES =================
 export const getCart = async (userId) => {
-  if (isConnectedToMongo) {
-    let cart = await Cart.findOne({ user: userId });
-    if (!cart) {
-      cart = await Cart.create({ user: userId, items: [] });
-    }
-    return cart;
-  }
+  let [cart] = await Cart.findOrCreate({
+    where: { userId: Number(userId) },
+    include: [{ model: CartItem, as: 'items' }],
+  });
 
-  if (!store.carts[userId]) {
-    store.carts[userId] = { user: userId, items: [], updatedAt: new Date().toISOString() };
-    saveFileStore(store);
+  cart = await Cart.findByPk(cart.id, {
+    include: [{ model: CartItem, as: 'items' }],
+  });
+
+  const raw = toJSON(cart);
+  if (raw && raw.items) {
+    raw.items = raw.items.map((it) => {
+      const itemJson = toJSON(it);
+      itemJson._id = itemJson.id;
+      itemJson.product = itemJson.productId;
+      return itemJson;
+    });
   }
-  return store.carts[userId];
+  return raw;
 };
 
 export const addToCart = async (userId, { productId, quantity = 1 }) => {
-  const product = await getProductById(productId);
+  quantity = Number(quantity) || 1;
+  const product = await Product.findByPk(productId);
   if (!product) throw new Error('Product not found');
 
-  if (isConnectedToMongo) {
-    let cart = await Cart.findOne({ user: userId });
-    if (!cart) {
-      cart = new Cart({ user: userId, items: [] });
-    }
+  const [cart] = await Cart.findOrCreate({
+    where: { userId: Number(userId) },
+  });
 
-    const itemIndex = cart.items.findIndex((item) => String(item.product) === String(productId));
-    if (itemIndex > -1) {
-      cart.items[itemIndex].quantity += Number(quantity);
-    } else {
-      cart.items.push({
-        product: product._id,
-        name: product.name,
-        price: product.price,
-        image: product.images[0],
-        quantity: Number(quantity),
-      });
-    }
-    await cart.save();
-    return cart;
-  }
+  const existingItem = await CartItem.findOne({
+    where: { cartId: cart.id, productId: Number(productId) },
+  });
 
-  if (!store.carts[userId]) {
-    store.carts[userId] = { user: userId, items: [], updatedAt: new Date().toISOString() };
-  }
-  const cart = store.carts[userId];
-  const itemIndex = cart.items.findIndex((i) => String(i.product) === String(productId));
-  if (itemIndex > -1) {
-    cart.items[itemIndex].quantity += Number(quantity);
+  if (existingItem) {
+    await existingItem.update({ quantity: existingItem.quantity + quantity });
   } else {
-    cart.items.push({
-      product: product._id,
+    const images = product.images;
+    await CartItem.create({
+      cartId: cart.id,
+      productId: product.id,
       name: product.name,
       price: product.price,
-      image: product.images[0],
-      quantity: Number(quantity),
+      image: Array.isArray(images) && images.length ? images[0] : '',
+      quantity,
     });
   }
-  cart.updatedAt = new Date().toISOString();
-  saveFileStore(store);
-  return cart;
+
+  return await getCart(userId);
 };
 
 export const updateCartItemQuantity = async (userId, productId, quantity) => {
   quantity = Number(quantity);
-  if (isConnectedToMongo) {
-    const cart = await Cart.findOne({ user: userId });
-    if (!cart) throw new Error('Cart not found');
-
-    if (quantity <= 0) {
-      cart.items = cart.items.filter((item) => String(item.product) !== String(productId));
-    } else {
-      const item = cart.items.find((item) => String(item.product) === String(productId));
-      if (item) {
-        item.quantity = quantity;
-      }
-    }
-    await cart.save();
-    return cart;
-  }
-
-  const cart = store.carts[userId];
+  const cart = await Cart.findOne({ where: { userId: Number(userId) } });
   if (!cart) throw new Error('Cart not found');
+
   if (quantity <= 0) {
-    cart.items = cart.items.filter((item) => String(item.product) !== String(productId));
+    await CartItem.destroy({ where: { cartId: cart.id, productId: Number(productId) } });
   } else {
-    const item = cart.items.find((item) => String(item.product) === String(productId));
+    const item = await CartItem.findOne({ where: { cartId: cart.id, productId: Number(productId) } });
     if (item) {
-      item.quantity = quantity;
+      await item.update({ quantity });
     }
   }
-  cart.updatedAt = new Date().toISOString();
-  saveFileStore(store);
-  return cart;
+
+  return await getCart(userId);
 };
 
 export const removeFromCart = async (userId, productId) => {
@@ -705,25 +411,19 @@ export const removeFromCart = async (userId, productId) => {
 };
 
 export const clearCart = async (userId) => {
-  if (isConnectedToMongo) {
-    const cart = await Cart.findOne({ user: userId });
-    if (cart) {
-      cart.items = [];
-      await cart.save();
-    }
-    return cart;
+  const cart = await Cart.findOne({ where: { userId: Number(userId) } });
+  if (cart) {
+    await CartItem.destroy({ where: { cartId: cart.id } });
   }
-  if (store.carts[userId]) {
-    store.carts[userId].items = [];
-    store.carts[userId].updatedAt = new Date().toISOString();
-    saveFileStore(store);
-  }
-  return store.carts[userId];
+  return await getCart(userId);
 };
 
 export const syncCart = async (userId, guestItems = []) => {
   for (const item of guestItems) {
-    await addToCart(userId, { productId: item.product || item._id, quantity: item.quantity || 1 });
+    await addToCart(userId, {
+      productId: item.productId || item.product || item.id,
+      quantity: item.quantity || 1,
+    });
   }
   return await getCart(userId);
 };
@@ -733,144 +433,173 @@ export const createOrder = async (orderData) => {
   const orderNumber = 'AUR-' + Date.now().toString().slice(-6) + '-' + Math.floor(1000 + Math.random() * 9000);
   const now = new Date();
 
-  const newOrderData = {
-    ...orderData,
-    orderNumber,
-    orderStatus: 'Pending',
-    statusTimeline: [
-      {
-        status: 'Pending',
-        timestamp: now,
-        note: 'Order placed successfully and awaiting confirmation.',
-      },
-    ],
-  };
+  const timeline = [
+    {
+      status: 'Pending',
+      timestamp: now.toISOString(),
+      note: 'Order placed successfully and awaiting fulfillment.',
+    },
+  ];
 
-  // If paid online via Stripe/Razorpay or instant capture
+  let orderStatus = 'Pending';
+  let paidAt = null;
+
   if (orderData.isPaid) {
-    newOrderData.paidAt = now;
-    newOrderData.orderStatus = 'Confirmed';
-    newOrderData.statusTimeline.push({
+    orderStatus = 'Confirmed';
+    paidAt = now;
+    timeline.push({
       status: 'Confirmed',
-      timestamp: now,
-      note: 'Payment received. Order has been confirmed and forwarded to fulfillment.',
+      timestamp: now.toISOString(),
+      note: 'Payment received. Order confirmed.',
     });
   }
 
-  if (isConnectedToMongo) {
-    const order = await Order.create(newOrderData);
-    // Deduct stock
-    for (const item of order.orderItems) {
-      await Product.findByIdAndUpdate(item.product, { $inc: { stock: -item.quantity } });
+  const order = await Order.create({
+    orderNumber,
+    userId: Number(orderData.userId || orderData.user),
+    shippingAddress: orderData.shippingAddress,
+    paymentMethod: orderData.paymentMethod || 'Cash on Delivery',
+    paymentResult: orderData.paymentResult || {},
+    itemsPrice: Number(orderData.itemsPrice) || 0,
+    taxPrice: Number(orderData.taxPrice) || 0,
+    shippingPrice: Number(orderData.shippingPrice) || 0,
+    discountAmount: Number(orderData.discountAmount) || 0,
+    totalPrice: Number(orderData.totalPrice) || 0,
+    isPaid: Boolean(orderData.isPaid),
+    paidAt,
+    orderStatus,
+    statusTimeline: timeline,
+  });
+
+  // Create Order Items & Deduct Stock
+  for (const item of orderData.orderItems || []) {
+    const prodId = Number(item.product || item.productId || item.id);
+    await OrderItem.create({
+      orderId: order.id,
+      productId: prodId,
+      name: item.name,
+      image: item.image,
+      price: item.price,
+      quantity: item.quantity,
+    });
+
+    const product = await Product.findByPk(prodId);
+    if (product && product.stock >= item.quantity) {
+      await product.update({ stock: product.stock - item.quantity });
     }
-    return order;
   }
 
-  const order = {
-    _id: generateId(),
-    ...newOrderData,
-    createdAt: now.toISOString(),
-    updatedAt: now.toISOString(),
-  };
-
-  // Deduct stock in file store
-  for (const item of order.orderItems) {
-    const pIdx = store.products.findIndex((p) => p._id === item.product);
-    if (pIdx !== -1 && store.products[pIdx].stock >= item.quantity) {
-      store.products[pIdx].stock -= item.quantity;
-    }
-  }
-
-  store.orders.unshift(order);
-  saveFileStore(store);
-  return order;
+  return await getOrderById(order.id);
 };
 
 export const getOrderById = async (id) => {
-  if (isConnectedToMongo) {
-    return await Order.findById(id).populate('user', 'name email');
+  const where = isNaN(Number(id)) ? { orderNumber: id } : { id: Number(id) };
+  const order = await Order.findOne({
+    where,
+    include: [
+      { model: OrderItem, as: 'orderItems' },
+      { model: User, as: 'user', attributes: ['id', 'name', 'email'] },
+    ],
+  });
+  const raw = toJSON(order);
+  if (raw && raw.orderItems) {
+    raw.orderItems = raw.orderItems.map((it) => {
+      const itemJson = toJSON(it);
+      itemJson._id = itemJson.id;
+      itemJson.product = itemJson.productId;
+      return itemJson;
+    });
   }
-  return store.orders.find((o) => o._id === id || o.orderNumber === id) || null;
+  return raw;
 };
 
 export const getOrdersByUser = async (userId) => {
-  if (isConnectedToMongo) {
-    return await Order.find({ user: userId }).sort({ createdAt: -1 });
-  }
-  return store.orders.filter((o) => String(o.user) === String(userId));
+  const orders = await Order.findAll({
+    where: { userId: Number(userId) },
+    include: [{ model: OrderItem, as: 'orderItems' }],
+    order: [['createdAt', 'DESC']],
+  });
+  return orders.map((o) => {
+    const raw = toJSON(o);
+    if (raw && raw.orderItems) {
+      raw.orderItems = raw.orderItems.map((it) => {
+        const itemJson = toJSON(it);
+        itemJson._id = itemJson.id;
+        itemJson.product = itemJson.productId;
+        return itemJson;
+      });
+    }
+    return raw;
+  });
 };
 
 export const getAllOrders = async ({ status = '', page = 1, limit = 20 }) => {
   page = Number(page) || 1;
   limit = Number(limit) || 20;
 
-  if (isConnectedToMongo) {
-    const query = status && status !== 'All' ? { orderStatus: status } : {};
-    const total = await Order.countDocuments(query);
-    const orders = await Order.find(query)
-      .populate('user', 'name email')
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
-    return { orders, total, page, pages: Math.ceil(total / limit) || 1 };
-  }
+  const where = status && status !== 'All' ? { orderStatus: status } : {};
 
-  let filtered = [...store.orders];
-  if (status && status !== 'All') {
-    filtered = filtered.filter((o) => o.orderStatus === status);
-  }
-  filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  const total = filtered.length;
-  const paginated = filtered.slice((page - 1) * limit, page * limit);
-  return { orders: paginated, total, page, pages: Math.ceil(total / limit) || 1 };
+  const { count, rows } = await Order.findAndCountAll({
+    where,
+    include: [
+      { model: OrderItem, as: 'orderItems' },
+      { model: User, as: 'user', attributes: ['id', 'name', 'email'] },
+    ],
+    order: [['createdAt', 'DESC']],
+    limit,
+    offset: (page - 1) * limit,
+  });
+
+  return {
+    orders: rows.map((o) => {
+      const raw = toJSON(o);
+      if (raw && raw.orderItems) {
+        raw.orderItems = raw.orderItems.map((it) => {
+          const itemJson = toJSON(it);
+          itemJson._id = itemJson.id;
+          itemJson.product = itemJson.productId;
+          return itemJson;
+        });
+      }
+      return raw;
+    }),
+    total: count,
+    page,
+    pages: Math.ceil(count / limit) || 1,
+  };
 };
 
 export const updateOrderStatus = async (id, { status, trackingNumber, note }) => {
-  const now = new Date();
-  const updateObj = {
-    orderStatus: status,
-    updatedAt: now,
-  };
-  if (trackingNumber) {
-    updateObj.trackingNumber = trackingNumber;
-  }
-  if (status === 'Delivered') {
-    updateObj.deliveredAt = now;
-  }
-
-  const timelineEntry = {
-    status,
-    timestamp: now,
-    note: note || `Order marked as ${status}`,
-  };
-
-  if (isConnectedToMongo) {
-    const order = await Order.findById(id);
-    if (!order) throw new Error('Order not found');
-    order.orderStatus = status;
-    if (trackingNumber) order.trackingNumber = trackingNumber;
-    if (status === 'Delivered') order.deliveredAt = now;
-    order.statusTimeline.push(timelineEntry);
-    await order.save();
-    return order;
-  }
-
-  const order = store.orders.find((o) => o._id === id);
+  const order = await Order.findByPk(id);
   if (!order) throw new Error('Order not found');
-  order.orderStatus = status;
-  if (trackingNumber) order.trackingNumber = trackingNumber;
-  if (status === 'Delivered') order.deliveredAt = now.toISOString();
-  order.statusTimeline.push({ ...timelineEntry, timestamp: now.toISOString() });
-  order.updatedAt = now.toISOString();
-  saveFileStore(store);
-  return order;
+
+  const now = new Date();
+  const timeline = order.statusTimeline || [];
+  timeline.push({
+    status,
+    timestamp: now.toISOString(),
+    note: note || `Order status marked as ${status}`,
+  });
+
+  const updateFields = {
+    orderStatus: status,
+    statusTimeline: timeline,
+  };
+
+  if (trackingNumber) updateFields.trackingNumber = trackingNumber;
+  if (status === 'Delivered') updateFields.deliveredAt = now;
+
+  await order.update(updateFields);
+  return await getOrderById(order.id);
 };
 
 export const cancelOrder = async (id, userId, reason = 'Customer requested cancellation') => {
-  const order = await getOrderById(id);
+  const order = await Order.findByPk(id, {
+    include: [{ model: OrderItem, as: 'orderItems' }],
+  });
   if (!order) throw new Error('Order not found');
 
-  if (String(order.user._id || order.user) !== String(userId)) {
+  if (Number(order.userId) !== Number(userId)) {
     throw new Error('Not authorized to cancel this order');
   }
 
@@ -878,108 +607,67 @@ export const cancelOrder = async (id, userId, reason = 'Customer requested cance
     throw new Error(`Cannot cancel order that is already ${order.orderStatus}`);
   }
 
-  if (order.orderStatus === 'Cancelled') {
-    throw new Error('Order is already cancelled');
-  }
-
   const now = new Date();
-  if (isConnectedToMongo) {
-    order.orderStatus = 'Cancelled';
-    order.cancelledAt = now;
-    order.cancelReason = reason;
-    order.statusTimeline.push({
-      status: 'Cancelled',
-      timestamp: now,
-      note: reason,
-    });
-    await order.save();
-
-    // Restock items
-    for (const item of order.orderItems) {
-      await Product.findByIdAndUpdate(item.product, { $inc: { stock: item.quantity } });
-    }
-    return order;
-  }
-
-  order.orderStatus = 'Cancelled';
-  order.cancelledAt = now.toISOString();
-  order.cancelReason = reason;
-  order.statusTimeline.push({
+  const timeline = order.statusTimeline || [];
+  timeline.push({
     status: 'Cancelled',
     timestamp: now.toISOString(),
     note: reason,
   });
-  order.updatedAt = now.toISOString();
 
-  // Restock items in store
-  for (const item of order.orderItems) {
-    const pIdx = store.products.findIndex((p) => p._id === item.product);
-    if (pIdx !== -1) {
-      store.products[pIdx].stock += item.quantity;
+  await order.update({
+    orderStatus: 'Cancelled',
+    cancelledAt: now,
+    cancelReason: reason,
+    statusTimeline: timeline,
+  });
+
+  // Restock items in SQL Product table
+  for (const item of order.orderItems || []) {
+    const product = await Product.findByPk(item.productId);
+    if (product) {
+      await product.update({ stock: product.stock + item.quantity });
     }
   }
 
-  saveFileStore(store);
-  return order;
+  return await getOrderById(order.id);
 };
 
 // ================= PAYMENT SERVICES =================
 export const createPaymentRecord = async (data) => {
-  if (isConnectedToMongo) {
-    return await Payment.create(data);
-  }
-  const payment = {
-    _id: generateId(),
-    ...data,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  store.payments.push(payment);
-  saveFileStore(store);
-  return payment;
+  const payment = await Payment.create(data);
+  return toJSON(payment);
 };
 
-// ================= DASHBOARD & ANALYTICS =================
+// ================= DASHBOARD & STATS =================
 export const getDashboardStats = async () => {
-  let totalRevenue = 0;
-  let totalOrders = 0;
-  let totalUsers = 0;
-  let totalProducts = 0;
-  let recentOrders = [];
-  let salesByCategory = {};
-  let monthlySales = [];
+  const totalOrders = await Order.count();
+  const totalUsers = await User.count();
+  const totalProducts = await Product.count();
 
-  if (isConnectedToMongo) {
-    totalOrders = await Order.countDocuments();
-    totalUsers = await User.countDocuments();
-    totalProducts = await Product.countDocuments();
+  const totalRevenue = (await Order.sum('totalPrice', {
+    where: { orderStatus: { [Op.ne]: 'Cancelled' } },
+  })) || 0;
 
-    const paidOrders = await Order.find({ orderStatus: { $ne: 'Cancelled' } });
-    totalRevenue = paidOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
-    recentOrders = await Order.find().sort({ createdAt: -1 }).limit(6).populate('user', 'name email');
-  } else {
-    totalOrders = store.orders.length;
-    totalUsers = store.users.length;
-    totalProducts = store.products.length;
-    const paidOrders = store.orders.filter((o) => o.orderStatus !== 'Cancelled');
-    totalRevenue = paidOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
-    recentOrders = store.orders.slice(0, 6);
-  }
+  const recentOrders = await Order.findAll({
+    limit: 6,
+    order: [['createdAt', 'DESC']],
+    include: [{ model: User, as: 'user', attributes: ['id', 'name', 'email'] }],
+  });
 
-  // Monthly sales calculation (last 6 months)
   const months = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
-  monthlySales = months.map((m, idx) => ({
+  const monthlySales = months.map((m, idx) => ({
     month: m,
     revenue: Math.round(totalRevenue * (0.12 + idx * 0.03)) + 1200,
     orders: Math.round(totalOrders * (0.11 + idx * 0.03)) + 15,
   }));
 
   return {
-    totalRevenue: Number(totalRevenue.toFixed(2)),
+    totalRevenue: Number(Number(totalRevenue).toFixed(2)),
     totalOrders,
     totalUsers,
     totalProducts,
-    recentOrders,
+    recentOrders: recentOrders.map(toJSON),
     monthlySales,
   };
 };

@@ -1,108 +1,119 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
 
-const orderItemSchema = new mongoose.Schema({
-  product: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
-    required: true,
+const Order = sequelize.define('Order', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
   },
-  name: { type: String, required: true },
-  image: { type: String, required: true },
-  price: { type: Number, required: true },
-  quantity: { type: Number, required: true, min: 1 },
-}, { _id: false });
-
-const orderSchema = new mongoose.Schema({
   orderNumber: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
     unique: true,
   },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
   },
-  orderItems: [orderItemSchema],
   shippingAddress: {
-    name: { type: String, required: true },
-    phone: { type: String, required: true },
-    street: { type: String, required: true },
-    city: { type: String, required: true },
-    state: { type: String, required: true },
-    postalCode: { type: String, required: true },
-    country: { type: String, required: true, default: 'India' },
+    type: DataTypes.TEXT,
+    allowNull: false,
+    get() {
+      const raw = this.getDataValue('shippingAddress');
+      try {
+        return raw ? JSON.parse(raw) : {};
+      } catch {
+        return {};
+      }
+    },
+    set(val) {
+      this.setDataValue('shippingAddress', typeof val === 'string' ? val : JSON.stringify(val || {}));
+    },
   },
   paymentMethod: {
-    type: String,
-    required: true,
-    enum: ['Stripe', 'Razorpay', 'Cash on Delivery'],
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   paymentResult: {
-    id: String,
-    status: String,
-    update_time: String,
-    email_address: String,
-    receipt_url: String,
+    type: DataTypes.TEXT,
+    defaultValue: '{}',
+    get() {
+      const raw = this.getDataValue('paymentResult');
+      try {
+        return raw ? JSON.parse(raw) : {};
+      } catch {
+        return {};
+      }
+    },
+    set(val) {
+      this.setDataValue('paymentResult', typeof val === 'string' ? val : JSON.stringify(val || {}));
+    },
   },
   itemsPrice: {
-    type: Number,
-    required: true,
-    default: 0.0,
+    type: DataTypes.FLOAT,
+    defaultValue: 0.0,
   },
   taxPrice: {
-    type: Number,
-    required: true,
-    default: 0.0,
+    type: DataTypes.FLOAT,
+    defaultValue: 0.0,
   },
   shippingPrice: {
-    type: Number,
-    required: true,
-    default: 0.0,
+    type: DataTypes.FLOAT,
+    defaultValue: 0.0,
   },
   discountAmount: {
-    type: Number,
-    default: 0.0,
+    type: DataTypes.FLOAT,
+    defaultValue: 0.0,
   },
   totalPrice: {
-    type: Number,
-    required: true,
-    default: 0.0,
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0.0,
   },
   isPaid: {
-    type: Boolean,
-    required: true,
-    default: false,
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
   paidAt: {
-    type: Date,
+    type: DataTypes.DATE,
   },
   orderStatus: {
-    type: String,
-    enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'],
-    default: 'Pending',
+    type: DataTypes.ENUM('Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'),
+    defaultValue: 'Pending',
   },
-  statusTimeline: [{
-    status: { type: String, required: true },
-    timestamp: { type: Date, default: Date.now },
-    note: { type: String, default: '' },
-  }],
+  statusTimeline: {
+    type: DataTypes.TEXT,
+    defaultValue: '[]',
+    get() {
+      const raw = this.getDataValue('statusTimeline');
+      try {
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    },
+    set(val) {
+      this.setDataValue('statusTimeline', typeof val === 'string' ? val : JSON.stringify(val || []));
+    },
+  },
   trackingNumber: {
-    type: String,
-    default: '',
+    type: DataTypes.STRING,
+    defaultValue: '',
   },
   deliveredAt: {
-    type: Date,
+    type: DataTypes.DATE,
   },
   cancelledAt: {
-    type: Date,
+    type: DataTypes.DATE,
   },
   cancelReason: {
-    type: String,
-    default: '',
+    type: DataTypes.STRING,
+    defaultValue: '',
   },
 }, {
   timestamps: true,
+  tableName: 'orders',
 });
 
-export default mongoose.models.Order || mongoose.model('Order', orderSchema);
+export default Order;

@@ -1,42 +1,47 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
 
-const categorySchema = new mongoose.Schema({
+const Category = sequelize.define('Category', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
   name: {
-    type: String,
-    required: [true, 'Category name is required'],
-    trim: true,
+    type: DataTypes.STRING,
+    allowNull: false,
     unique: true,
   },
   slug: {
-    type: String,
-    lowercase: true,
-    trim: true,
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
   },
   description: {
-    type: String,
-    default: '',
+    type: DataTypes.TEXT,
+    defaultValue: '',
   },
   image: {
-    type: String,
-    default: '',
+    type: DataTypes.STRING,
+    defaultValue: '',
   },
   icon: {
-    type: String,
-    default: 'Tag',
+    type: DataTypes.STRING,
+    defaultValue: 'Cpu',
   },
   isFeatured: {
-    type: Boolean,
-    default: false,
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
 }, {
   timestamps: true,
+  tableName: 'categories',
 });
 
-categorySchema.pre('save', function (next) {
-  if (this.isModified('name')) {
-    this.slug = this.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+Category.beforeValidate((cat) => {
+  if (cat.name && !cat.slug) {
+    cat.slug = cat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
   }
-  next();
 });
 
-export default mongoose.models.Category || mongoose.model('Category', categorySchema);
+export default Category;

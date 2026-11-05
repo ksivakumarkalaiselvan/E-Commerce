@@ -139,10 +139,10 @@ router.post('/:id/reviews', protect, async (req, res, next) => {
     }
 
     const review = await addReview({
-      userId: req.user._id,
+      userId: req.user.id || req.user._id,
       userName: req.user.name,
       userAvatar: req.user.avatar || '',
-      productId: product._id,
+      productId: product.id || product._id,
       rating: Number(rating),
       comment,
     });

@@ -1,80 +1,96 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import sequelize from '../config/db.js';
 
-const addressSchema = new mongoose.Schema({
-  street: { type: String, required: true },
-  city: { type: String, required: true },
-  state: { type: String, required: true },
-  postalCode: { type: String, required: true },
-  country: { type: String, required: true, default: 'India' },
-  isDefault: { type: Boolean, default: false }
-}, { _id: true });
-
-const userSchema = new mongoose.Schema({
+const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
   name: {
-    type: String,
-    required: [true, 'Please provide your name'],
-    trim: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   email: {
-    type: String,
-    required: [true, 'Please provide an email'],
+    type: DataTypes.STRING,
+    allowNull: false,
     unique: true,
-    lowercase: true,
-    trim: true,
-    match: [
-      /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-      'Please provide a valid email',
-    ],
+    validate: {
+      isEmail: true,
+    },
   },
   password: {
-    type: String,
-    required: [true, 'Please provide a password'],
-    minlength: 6,
-    select: false,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   role: {
-    type: String,
-    enum: ['user', 'admin'],
-    default: 'user',
+    type: DataTypes.ENUM('user', 'admin'),
+    defaultValue: 'user',
   },
   phone: {
-    type: String,
-    default: '',
+    type: DataTypes.STRING,
+    defaultValue: '',
   },
   avatar: {
-    type: String,
-    default: '',
+    type: DataTypes.STRING,
+    defaultValue: '',
   },
-  addresses: [addressSchema],
-  resetPasswordToken: String,
-  resetPasswordExpire: Date,
+  addresses: {
+    type: DataTypes.TEXT,
+    defaultValue: '[]',
+    get() {
+      const raw = this.getDataValue('addresses');
+      try {
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    },
+    set(val) {
+      this.setDataValue('addresses', typeof val === 'string' ? val : JSON.stringify(val || []));
+    },
+  },
+  resetPasswordToken: {
+    type: DataTypes.STRING,
+  },
+  resetPasswordExpire: {
+    type: DataTypes.DATE,
+  },
 }, {
   timestamps: true,
+  tableName: 'users',
 });
 
-// Encrypt password before saving
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    next();
-  }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
-
-// Match password
-userSchema.methods.matchPassword = async function (enteredPassword) {
+// Instance method to check password
+User.prototype.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Sign JWT and return
-userSchema.methods.getSignedJwtToken = function () {
+// Instance method to generate JWT
+User.prototype.getSignedJwtToken = function () {
   return jwt.sign(
-    { id: this._id, role: this.role, email: this.email },
-    process.env.JWT_SECRET || 'fallback_secret',
+    { id: this.id, role: this.role, email: this.email },
+    process.env.JWT_SECRET || 'aura_super_secure_jwt_secret_key_2026_!@#$',
     { expiresIn: process.env.JWT_EXPIRE || '30d' }
   );
 };
 
-export default mongoose.models.User || mongoose.model('User', userSchema);
+// Hash password hook before creating
+User.beforeCreate(async (user) => {
+  if (user.password && !user.password.startsWith('$2a$') && !user.password.startsWith('$2b$')) {
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(user.password, salt);
+  }
+});
+
+// Hash password hook before updating
+User.beforeUpdate(async (user) => {
+  if (user.changed('password') && !user.password.startsWith('$2a$') && !user.password.startsWith('$2b$')) {
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(user.password, salt);
+  }
+});
+
+export default User;

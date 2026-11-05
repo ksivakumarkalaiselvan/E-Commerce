@@ -14,12 +14,14 @@ const router = express.Router();
 // All cart routes require user authentication
 router.use(protect);
 
+const getUid = (req) => req.user.id || req.user._id;
+
 // @desc    Get user cart
 // @route   GET /api/cart
 // @access  Private
 router.get('/', async (req, res, next) => {
   try {
-    const cart = await getCart(req.user._id);
+    const cart = await getCart(getUid(req));
     res.json({
       success: true,
       cart,
@@ -38,7 +40,7 @@ router.post('/add', async (req, res, next) => {
     if (!productId) {
       return res.status(400).json({ success: false, message: 'Product ID is required' });
     }
-    const cart = await addToCart(req.user._id, { productId, quantity: quantity || 1 });
+    const cart = await addToCart(getUid(req), { productId, quantity: quantity || 1 });
     res.json({
       success: true,
       message: 'Item added to cart',
@@ -58,7 +60,7 @@ router.put('/update', async (req, res, next) => {
     if (!productId || quantity === undefined) {
       return res.status(400).json({ success: false, message: 'Product ID and quantity required' });
     }
-    const cart = await updateCartItemQuantity(req.user._id, productId, quantity);
+    const cart = await updateCartItemQuantity(getUid(req), productId, quantity);
     res.json({
       success: true,
       cart,
@@ -73,7 +75,7 @@ router.put('/update', async (req, res, next) => {
 // @access  Private
 router.delete('/remove/:productId', async (req, res, next) => {
   try {
-    const cart = await removeFromCart(req.user._id, req.params.productId);
+    const cart = await removeFromCart(getUid(req), req.params.productId);
     res.json({
       success: true,
       message: 'Item removed from cart',
@@ -89,7 +91,7 @@ router.delete('/remove/:productId', async (req, res, next) => {
 // @access  Private
 router.delete('/clear', async (req, res, next) => {
   try {
-    const cart = await clearCart(req.user._id);
+    const cart = await clearCart(getUid(req));
     res.json({
       success: true,
       message: 'Cart cleared',
@@ -106,7 +108,7 @@ router.delete('/clear', async (req, res, next) => {
 router.post('/sync', async (req, res, next) => {
   try {
     const { items } = req.body;
-    const cart = await syncCart(req.user._id, items || []);
+    const cart = await syncCart(getUid(req), items || []);
     res.json({
       success: true,
       message: 'Cart synchronized',

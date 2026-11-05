@@ -1,32 +1,20 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
 
-const cartItemSchema = new mongoose.Schema({
-  product: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
-    required: true,
+const Cart = sequelize.define('Cart', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
   },
-  name: { type: String, required: true },
-  price: { type: Number, required: true },
-  image: { type: String, required: true },
-  quantity: {
-    type: Number,
-    required: true,
-    min: 1,
-    default: 1,
-  },
-}, { _id: false });
-
-const cartSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
     unique: true,
   },
-  items: [cartItemSchema],
 }, {
   timestamps: true,
+  tableName: 'carts',
 });
 
-export default mongoose.models.Cart || mongoose.model('Cart', cartSchema);
+export default Cart;

@@ -51,8 +51,8 @@ router.post('/verify', async (req, res, next) => {
     const receiptUrl = `/receipts/${transactionId}.pdf`;
 
     const payment = await createPaymentRecord({
-      order: orderId,
-      user: req.user._id,
+      orderId: Number(orderId),
+      userId: req.user.id || req.user._id,
       method: gateway || 'Stripe',
       transactionId,
       amount: Number(amount),
